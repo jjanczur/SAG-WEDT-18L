@@ -1,4 +1,4 @@
-package actors.menuResearcher;
+package actors.restaurantResearcher;
 
 public class Restaurant {
     int id;
