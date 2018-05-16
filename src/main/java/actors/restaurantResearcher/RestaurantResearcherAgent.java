@@ -3,10 +3,7 @@ package actors.restaurantResearcher;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,7 +14,6 @@ import java.util.ArrayList;
 
 public class RestaurantResearcherAgent extends AbstractActor {
     //variables
-    ArrayList restaurantsListJson;
     ArrayList restaurantsList;
     String apiUserKey = "4972ea7a10293fc07e997364eef03d3d";
     int cityId = 61;
@@ -32,6 +28,12 @@ public class RestaurantResearcherAgent extends AbstractActor {
 
         rbuilder.match(String.class, s -> {
             System.out.println("Received message: " + s.toLowerCase());
+            if(s.contains("zomato"))
+                getZomatoRestaurantsData();
+            else if(s.contains("google"))
+                getGoogleRestaurantsData();
+            else
+                System.out.println("[WARN] The message string does not specify the data source.");
         });
 
         return rbuilder.build();
@@ -58,20 +60,24 @@ public class RestaurantResearcherAgent extends AbstractActor {
             allRestaurantsJson = in.readLine();
             in.close();
         } catch (IOException e) {
+            System.out.println("[INFO] Zomato API not responding.");
             e.printStackTrace();
         }
 
         JsonParser jsonParser = new JsonParser();
         JsonObject jsonObject = (JsonObject)jsonParser.parse(allRestaurantsJson);
         /*todo: Make conversion from json list restaurant class directly */
-        JsonArray jsonArr = jsonObject.getAsJsonArray("restaurants");
+        JsonArray jsonArr = jsonObject.getAsJsonArray("restaurant");
+
         Gson gJson = new Gson();
-        restaurantsListJson = gJson.fromJson(jsonArr, ArrayList.class);
         restaurantsList = new ArrayList<Restaurant>();
 
-        for(int i=0;i<restaurantsListJson.size();i++){
-            restaurantsList.set(i,gJson.fromJson((String)restaurantsListJson.get(i), Restaurant.class));
+        for(int i=0; i<jsonArr.size();i++) {
+            restaurantsList.add(gJson.fromJson(jsonArr.get(i).toString(), Restaurant.class));
         }
+        System.out.println(restaurantsList.get(0));
+
+        System.out.println("[INFO] Zomato data processing finished succesfully.");
     }
 
     private void getGoogleRestaurantsData() {
@@ -99,12 +105,6 @@ public class RestaurantResearcherAgent extends AbstractActor {
         /*todo: Make conversion from json list restaurant class directly */
         JsonArray jsonArr = jsonObject.getAsJsonArray("restaurants");
         Gson gJson = new Gson();
-        restaurantsListJson = gJson.fromJson(jsonArr, ArrayList.class);
-        restaurantsList = new ArrayList<Restaurant>();
-
-        for(int i=0;i<restaurantsListJson.size();i++){
-            restaurantsList.set(i,gJson.fromJson((String)restaurantsListJson.get(i), Restaurant.class));
-        }
     }
 
 }
