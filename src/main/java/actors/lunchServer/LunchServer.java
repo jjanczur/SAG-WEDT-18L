@@ -1,7 +1,10 @@
 package actors.lunchServer;
+import actors.restaurantResearcher.RestaurantResearcherAgent;
 
 
+import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.actor.Props;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -25,13 +28,16 @@ public class LunchServer {
         /*
         * ustawienia serwera
         */
-        Config cfg = ConfigFactory.load("conf/server");
-        Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
+        //Props.create(RestaurantResearcherAgent.class);
+        //Config cfg = ConfigFactory.load("conf/server");
+       // Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
 
 
-        ActorSystem system = ActorSystem.create("ServerSystem", cfg2);
+        ActorSystem system = ActorSystem.create("Actorsystem");
+        final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
+        research.tell("get-zomato", ActorRef.noSender());
 
-        system.actorOf(LunchServerAgent.props());
+        //system.actorOf(LunchServerAgent.props());
     }
 }
 
