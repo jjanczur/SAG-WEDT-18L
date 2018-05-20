@@ -1,12 +1,11 @@
 package actors.menuClassifier.classifier.StanfordNLP;
 
-import edu.stanford.nlp.coref.data.CorefChain;
-import edu.stanford.nlp.ling.*;
-import edu.stanford.nlp.ie.util.*;
-import edu.stanford.nlp.pipeline.*;
-import edu.stanford.nlp.semgraph.*;
-import edu.stanford.nlp.trees.*;
-import java.util.*;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.pipeline.CoreDocument;
+import edu.stanford.nlp.pipeline.CoreSentence;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+
+import java.util.Properties;
 
 
 public class CoreNLP {
@@ -22,10 +21,11 @@ public class CoreNLP {
         // set up pipeline properties
         Properties props = new Properties();
         // set the list of annotators to run
-        props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,parse,depparse,coref,kbp,quote");
-        //props.setProperty("annotators", "tokenize,ssplit,pos,lemma");
+        //https://stanfordnlp.github.io/CoreNLP/annotators.html
+        //props.setProperty("annotators", "tokenize,ssplit,pos,lemma,ner,depparse,coref,kbp,quote");
+        props.setProperty("annotators", "tokenize,ssplit,pos,lemma");
         // set a property for an annotator, in this case the coref annotator is being set to use the neural algorithm
-        props.setProperty("coref.algorithm", "neural");
+        /* props.setProperty("coref.algorithm", "neural");*/
         // build pipeline
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
         // create a document object
@@ -35,8 +35,8 @@ public class CoreNLP {
         // examples
 
         //tokens
-        for(CoreLabel token : document.tokens()){
-            System.out.println(token + "    After lemma :"+token.lemma());
+        for (CoreLabel token : document.tokens()) {
+            System.out.println(token + "    After lemma :" + token.lemma());
 
         }
 
