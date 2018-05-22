@@ -1,5 +1,7 @@
 package actors.menuClassifier.classifier;
 
+import actors.restaurantResearcher.Restaurant;
+import actors.restaurantResearcher.RestaurantCollection;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
@@ -23,6 +25,7 @@ public class Algorithm {
     private final static Logger log = Logger.getLogger(Algorithm.class);
     private final static List<String> stopWords;
 
+
     static {
         Properties props = new Properties();
         props.setProperty("annotators", "tokenize,ssplit,pos,lemma");
@@ -33,14 +36,66 @@ public class Algorithm {
 
     private final Counter<String> dfCounter;
     private final int numDocuments;
+    private List<RestaurantClassifierWrapper> restaurantsCW;
+    private List<String> tokensSearching;
+    private double[] vecSearching;
+    /*
+    1 - Maximum tf normalization
+    2 - Sublinear tf scaling
+     */
+    private int selectTfIDFWeight = 1;
 
     public Algorithm(Counter<String> dfCounter, int numDocuments) {
         this.dfCounter = dfCounter;
         this.numDocuments = numDocuments;
-
     }
 
-    public static List<String> loadStopWords() {
+    public Algorithm(RestaurantCollection restaurants, String searchingMenu) {
+        this.numDocuments = restaurants.restaurants.size();
+
+        this.tokensSearching = getLemmizationAndUseStopWords((getAnnotatedDocument(searchingMenu)).tokens());
+
+        List<RestaurantClassifierWrapper> restaurantsCW = new ArrayList<RestaurantClassifierWrapper>();
+
+        Counter<String> dfCounter = new ClassicCounter<String>();
+
+        for (Restaurant restaurant : restaurants.restaurants) {
+
+            RestaurantClassifierWrapper restaurantCW = new RestaurantClassifierWrapper(restaurant);
+
+            CoreDocument document = getAnnotatedDocument(restaurant.getDailyMenu());
+            List<String> tokensAfterLemma = getLemmizationAndUseStopWords(document.tokens());
+            Counter<String> termFrequencies = getTermFrequencies(tokensAfterLemma);
+
+            restaurantCW.setTokensAfterLemma(tokensAfterLemma);
+            restaurantCW.setTermFrequencies(termFrequencies);
+            dfCounter.addAll(termFrequencies);
+            restaurantsCW.add(restaurantCW);
+        }
+
+        this.dfCounter = dfCounter;
+        this.restaurantsCW = restaurantsCW;
+    }
+
+    private void copmputeTfIdfAndTransformToVec() {
+        for (RestaurantClassifierWrapper restaurantCW : this.getRestaurantsCW()) {
+            restaurantCW.setTfIdfs(getTfIdfs(restaurantCW));
+            restaurantCW.setVec(transformToVec(tokensSearching, restaurantCW.getTfIdfs()));
+        }
+        this.setVecSearching(transformToVec(tokensSearching, getTfIdfs(tokensSearching)));
+    }
+
+    private void computeCosineSimilarity() {
+        for (RestaurantClassifierWrapper restaurantCW : this.getRestaurantsCW()) {
+            restaurantCW.setCosineSimilarity(CosineSimilarity.cosineSimilarity(restaurantCW.getVec(), this.getVecSearching()));
+        }
+    }
+
+    private void sort() {
+        Collections.sort(this.restaurantsCW, new CosineSimilarityComaprator());
+    }
+
+    private static List<String> loadStopWords() {
 
         List<String> stopList = new ArrayList<String>();
         File stopWords = Util.getFileFromResource("conf/stopwords.txt");
@@ -70,7 +125,7 @@ public class Algorithm {
         return ret;
     }
 
-    public static List<String> getLemmizationAndUseStopWords(List<CoreLabel> tokens) {
+    private static List<String> getLemmizationAndUseStopWords(List<CoreLabel> tokens) {
         List<String> tokensAfterLemma = new ArrayList<String>();
 
         for (CoreLabel token : tokens) {
@@ -81,52 +136,85 @@ public class Algorithm {
         return tokensAfterLemma;
     }
 
-    public static CoreDocument getAnootatedDocument(String documentContent) {
+    private static CoreDocument getAnnotatedDocument(String documentContent) {
         CoreDocument document = new CoreDocument(documentContent);
         pipeline.annotate(document);
         return document;
     }
 
-    public Map<String, Double> getTfIdfs(String documentContent) {
 
-        CoreDocument document = getAnootatedDocument(documentContent);
+    private Map<String, Double> getTfIdfs(String documentContent) {
+
+        CoreDocument document = getAnnotatedDocument(documentContent);
 
         List<String> tokensAfterLemma = getLemmizationAndUseStopWords(document.tokens());
 
         Counter<String> tfs = getTermFrequencies(tokensAfterLemma);
 
+        double tfMax = Collections.max(tfs.entrySet(), Map.Entry.comparingByValue()).getValue();
+
         Map<String, Double> tfIdfs = new HashMap<String, Double>();
 
         for (String token : tokensAfterLemma) {
-            tfIdfs.put(token, TfIdf.tfIDFWeight(token, tfs, this.numDocuments, this.dfCounter));
+            if(selectTfIDFWeight == 1){
+                tfIdfs.put(token, TfIdf.tfIDFWeightNormalize(token, tfs, this.numDocuments, this.dfCounter, tfMax));
+            }else{
+                tfIdfs.put(token, TfIdf.tfIDFWeightSublinear(token, tfs, this.numDocuments, this.dfCounter));
+            }
         }
 
         return tfIdfs;
 
     }
 
-    public Map<String, Double> getTfIdfs(List<String> tokensAfterLemma) {
+    private Map<String, Double> getTfIdfs(RestaurantClassifierWrapper restaurantCW) {
+
+        Counter<String> tfs = restaurantCW.getTermFrequencies();
+
+        Map<String, Double> tfIdfs = new HashMap<String, Double>();
+
+        double tfMax = Collections.max(tfs.entrySet(), Map.Entry.comparingByValue()).getValue();
+
+        for (String token : restaurantCW.getTokensAfterLemma()) {
+            if(selectTfIDFWeight == 1){
+                tfIdfs.put(token, TfIdf.tfIDFWeightNormalize(token, tfs, this.numDocuments, this.dfCounter, tfMax));
+            }else{
+                tfIdfs.put(token, TfIdf.tfIDFWeightSublinear(token, tfs, this.numDocuments, this.dfCounter));
+            }
+        }
+
+        return tfIdfs;
+
+    }
+
+    private Map<String, Double> getTfIdfs(List<String> tokensAfterLemma) {
 
         Counter<String> tfs = getTermFrequencies(tokensAfterLemma);
 
+        double tfMax = Collections.max(tfs.entrySet(), Map.Entry.comparingByValue()).getValue();
+
         Map<String, Double> tfIdfs = new HashMap<String, Double>();
 
         for (String token : tokensAfterLemma) {
-            tfIdfs.put(token, TfIdf.tfIDFWeight(token, tfs, this.numDocuments, this.dfCounter));
+            if(selectTfIDFWeight == 1){
+                tfIdfs.put(token, TfIdf.tfIDFWeightNormalize(token, tfs, this.numDocuments, this.dfCounter, tfMax));
+            }else{
+                tfIdfs.put(token, TfIdf.tfIDFWeightSublinear(token, tfs, this.numDocuments, this.dfCounter));
+            }
         }
 
         return tfIdfs;
 
     }
 
-    public static Double[] transformToVec(List<String> tokensSearching, Map<String, Double> tfIdfs) {
-        Double[] vec = new Double[tokensSearching.size()];
+    private static double[] transformToVec(List<String> tokensSearching, Map<String, Double> tfIdfs) {
+        double[] vec = new double[tokensSearching.size()];
         int i = 0;
         for (String token : tokensSearching) {
             if (tfIdfs.containsKey(token)) {
                 vec[i] = tfIdfs.get(token);
             } else {
-                vec[i] = Double.valueOf(0);
+                vec[i] = 0.0;
             }
             i++;
         }
@@ -136,51 +224,33 @@ public class Algorithm {
 
 
     public static void main(String[] args) {
+        test1();
+    }
 
+    public static void test1() {
+        String searchingMenu = "roasted fish and chips and sauce and cucumber";
+        RestaurantCollection restaurantsCollection = new RestaurantCollection();
 
-        String serachingContent = "roasted fish and chips and sauce and chilli";
-        String contentDF = Util.readFiletoString(Util.testFilePath + "tk0.txt", Util.encodingUTF8);
-        String content = Util.readFiletoString(Util.testFilePath + "tk1.txt", Util.encodingUTF8);
+        restaurantsCollection.restaurants.add(new Restaurant("roasted fish and chips"));
+        restaurantsCollection.restaurants.add(new Restaurant("Gravlax in lemon-sesame salsa with fresh coriander, chilli and cucumber"));
+        restaurantsCollection.restaurants.add(new Restaurant(searchingMenu));
 
-        List<String> menus = new ArrayList<String>();
-        menus.add(contentDF);
-        menus.add(serachingContent);
+        Algorithm algorithm = new Algorithm(restaurantsCollection, searchingMenu);
+        algorithm.classifyRestaurants();
 
-
-        StringBuilder stringBuilder = new StringBuilder();
-        for (String menu : menus) {
-            stringBuilder.append(menu);
+        log.info("Scores tfidf Method 1:");
+        for (RestaurantClassifierWrapper restaurantCW : algorithm.getRestaurantsCW()) {
+            log.info("Score :" + restaurantCW.getCosineSimilarity() + "\tMenu: " + restaurantCW.getRestaurant().getDailyMenu());
         }
-
-        //Annotate all aveliable docs
-        CoreDocument documents = getAnootatedDocument(stringBuilder.toString());
-        List<String> tokensAfterLemma = getLemmizationAndUseStopWords(documents.tokens());
-        Counter<String> dfCounter = getTermFrequencies(tokensAfterLemma);
-        int numRestaurants = menus.size();
-
-
-        /* Counter<String> dfCounter = DFCounter.countDF(contentDF);*/
-
-        Algorithm algorithm = new Algorithm(dfCounter, numRestaurants);
-
-        List<String> tokensSearching = algorithm.getLemmizationAndUseStopWords(
-                (getAnootatedDocument(serachingContent)).tokens());
-
-        Double[] vec = transformToVec(tokensSearching, algorithm.getTfIdfs(content));
-
-
-        Double[] vecSearching = transformToVec(tokensSearching, algorithm.getTfIdfs(tokensSearching));
-
-        log.info(CosineSimilarity.cosineSimilarity(vecSearching, vec));
-
-        //test
-        String content1 = Util.readFiletoString(Util.testFilePath + "tk2.txt", Util.encodingUTF8);
-
-        Double[] vec1 = transformToVec(tokensSearching, algorithm.getTfIdfs(content1));
-
-        log.info(CosineSimilarity.cosineSimilarity(vecSearching, vec1));
 
 
     }
+
+    public void classifyRestaurants() {
+        this.copmputeTfIdfAndTransformToVec();
+        this.computeCosineSimilarity();
+        this.sort();
+    }
+
 
 }

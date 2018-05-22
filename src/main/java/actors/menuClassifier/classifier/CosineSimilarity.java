@@ -6,7 +6,7 @@ public class CosineSimilarity {
      * Method to calculate cosine similarity between two documents.
      */
 
-    public static double cosineSimilarity(Double[] docVector1, Double[] docVector2) {
+    public static double cosineSimilarity(double[] docVector1, double[] docVector2) {
         double dotProduct = 0.0;
         double magnitude1 = 0.0;
         double magnitude2 = 0.0;
@@ -22,7 +22,7 @@ public class CosineSimilarity {
         magnitude1 = Math.sqrt(magnitude1);//sqrt(a^2)
         magnitude2 = Math.sqrt(magnitude2);//sqrt(b^2)
 
-        if (magnitude1 != 0.0 | magnitude2 != 0.0) {
+        if (magnitude1 != 0.0 && magnitude2 != 0.0) {
             cosineSimilarity = dotProduct / (magnitude1 * magnitude2);
         } else {
             return 0.0;

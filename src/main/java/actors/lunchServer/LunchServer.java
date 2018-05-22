@@ -1,14 +1,12 @@
 package actors.lunchServer;
+
+import actors.menuClassifier.MenuClassifierAgent;
+import actors.message.Classify;
+import actors.restaurantResearcher.Restaurant;
+import actors.restaurantResearcher.RestaurantCollection;
 import actors.restaurantResearcher.RestaurantResearcherAgent;
-
-
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.actor.Props;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
-
-import java.io.File;
 
 /**
  * Klasa uruchamiająca serwer systemu. Serwer zbiera informacje nt. uruchomionych w
@@ -19,23 +17,39 @@ public class LunchServer {
 
     /**
      * Server entry point.
+     *
      * @param args Parametry CLI.
      */
-    public static void main( String[] args )
-    {
+    public static void main(String[] args) {
         /*todo: Ogarnąć po co jest ten cfg2 - skąd w ogóle bierze plik server.conf ????(może jakiś domyśłny - nie mylić z /conf/server.conf)*/
 
         /*
-        * ustawienia serwera
-        */
+         * ustawienia serwera
+         */
         //Props.create(RestaurantResearcherAgent.class);
         //Config cfg = ConfigFactory.load("conf/server");
-       // Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
+        // Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
 
 
         ActorSystem system = ActorSystem.create("Actorsystem");
         final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
         research.tell("get-zomato", ActorRef.noSender());
+
+
+        final ActorRef classifyActor = system.actorOf(MenuClassifierAgent.props(), "Calssifier");
+
+        String searchingMenu = "roasted fish and chips and sauce and cucumber";
+        RestaurantCollection restaurantsCollection = new RestaurantCollection();
+
+        restaurantsCollection.restaurants.add(new Restaurant("roasted fish and chips"));
+        restaurantsCollection.restaurants.add(new Restaurant("Gravlax in lemon-sesame salsa with fresh coriander, chilli and cucumber"));
+        restaurantsCollection.restaurants.add(new Restaurant(searchingMenu));
+
+        Classify classify = new Classify();
+        classify.setSearchingMenu(searchingMenu);
+        classify.setRestaurantC(restaurantsCollection);
+
+        classifyActor.tell(classify, ActorRef.noSender());
 
         //system.actorOf(LunchServerAgent.props());
     }
