@@ -1,6 +1,5 @@
 package utils;
 
-import actors.menuClassifier.classifier.Algorithm;
 import org.apache.commons.io.FileUtils;
 
 import java.io.File;
@@ -8,6 +7,7 @@ import java.io.IOException;
 
 public class Util {
 
+    public static String log4jConfPath = "/conf/log4j.properties";
 
     public static String testFilePath = "data/tests/";
 
@@ -30,14 +30,14 @@ public class Util {
 
     public static File getFileFromResource(String filePath) {
 
-        ClassLoader classLoader = Algorithm.class.getClassLoader();
+        ClassLoader classLoader = Util.class.getClassLoader();
         File file = new File(classLoader.getResource(filePath).getFile());
         return file;
     }
 
     public static File getTestFile() {
 
-        ClassLoader classLoader = Algorithm.class.getClassLoader();
+        ClassLoader classLoader = Util.class.getClassLoader();
         File file = new File(classLoader.getResource(Util.testFilePath).getFile());
         return file;
     }

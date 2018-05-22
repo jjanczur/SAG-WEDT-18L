@@ -1,4 +1,4 @@
-package actors.menuClassifier.classifier.StanfordNLP;
+package actors.menuClassifier.classifier;
 
 import edu.stanford.nlp.io.ReaderInputStream;
 import edu.stanford.nlp.ling.HasWord;
@@ -82,14 +82,6 @@ public class DFCounter {
         Counter<String> idfMap = new ClassicCounter<String>();
         for (int i = 0; i < docNodes.getLength(); i++) {
             doc = (Element) docNodes.item(i);
-            /*
-            NodeList texts = doc.getElementsByTagName(TAG_TEXT);
-            assert texts.getLength() == 1;
-
-            Element text = (Element) texts.item(0);
-            String textContent = getFullTextContent(text);
-            */
-
             String textContent = doc.getFirstChild().getTextContent();
             idfMap.addAll(getIDFMapForDocument(textContent));
             // Increment magic counter
