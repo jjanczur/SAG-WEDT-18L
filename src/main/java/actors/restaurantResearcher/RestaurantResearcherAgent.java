@@ -17,7 +17,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
     ArrayList restaurantsList;
     String apiUserKey = "4972ea7a10293fc07e997364eef03d3d";
     int cityId = 61;
-    int restaurantCount = 10;
+    int restaurantCount = 20;
     int radius = 1500;
     double latitude = 51.490489;
     double longtitude = -0.167910;
@@ -64,20 +64,9 @@ public class RestaurantResearcherAgent extends AbstractActor {
             e.printStackTrace();
         }
 
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = (JsonObject)jsonParser.parse(allRestaurantsJson);
-        /*todo: Make conversion from json list restaurant class directly */
-        JsonArray jsonArr = jsonObject.getAsJsonArray("restaurant");
-
         Gson gJson = new Gson();
-        restaurantsList = new ArrayList<Restaurant>();
-
-        for(int i=0; i<jsonArr.size();i++) {
-            restaurantsList.add(gJson.fromJson(jsonArr.get(i).toString(), Restaurant.class));
-        }
-        System.out.println(restaurantsList.get(0));
-
-        System.out.println("[INFO] Zomato data processing finished succesfully.");
+        RestaurantCollection test = gJson.fromJson(allRestaurantsJson, RestaurantCollection.class);
+        System.out.println("[INFO] Zomato parsing completed");
     }
 
     private void getGoogleRestaurantsData() {
