@@ -1,12 +1,21 @@
+
 package actors.restaurantResearcher;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class Restaurant {
-    int id;
-    String name;
-    //String restaurant;
-    public Restaurant(int rid, String rname){
-        id=rid;
-        name=rname;
-        //restaurant = rr;
+
+    @SerializedName("restaurant")
+    @Expose
+    private RestaurantZomato restaurant;
+
+    public RestaurantZomato getRestaurant() {
+        return restaurant;
     }
+
+    public void setRestaurant(RestaurantZomato restaurant) {
+        this.restaurant = restaurant;
+    }
+
 }
