@@ -14,16 +14,17 @@ import java.util.ArrayList;
 
 public class RestaurantResearcherAgent extends AbstractActor {
     //variables
-    ArrayList restaurantsList;
-    String zomatoApiUserKey = "4972ea7a10293fc07e997364eef03d3d";
-    String googleApiUserKey = "AIzaSyC46JVz8sjO7cLKFytsG9LjuY11BrQu6_w";
-    String keyword = "lunch";
-    int cityId = 61;
-    int restaurantCount = 20;
-    int radius = 1500;
-    double latitude = 51.490489;
-    double longtitude = -0.167910;
-
+    private ArrayList restaurantsList;
+    private String zomatoApiUserKey = "4972ea7a10293fc07e997364eef03d3d";
+    private String googleApiUserKey = "AIzaSyC46JVz8sjO7cLKFytsG9LjuY11BrQu6_w";
+    private String keyword = "lunch";
+    private int cityId = 61;
+    private int restaurantCount = 20;
+    private int radius = 1500;
+    private double latitude = 51.490489;
+    private double longtitude = -0.167910;
+    public ZomatoCollection ZC;
+    public GoogleCollection GC;
     @Override
     public Receive createReceive() {
         ReceiveBuilder rbuilder = ReceiveBuilder.create();
