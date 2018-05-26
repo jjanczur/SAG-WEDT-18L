@@ -14,14 +14,17 @@ import java.util.ArrayList;
 
 public class RestaurantResearcherAgent extends AbstractActor {
     //variables
-    ArrayList restaurantsList;
-    String apiUserKey = "4972ea7a10293fc07e997364eef03d3d";
-    int cityId = 61;
-    int restaurantCount = 20;
-    int radius = 1500;
-    double latitude = 51.490489;
-    double longtitude = -0.167910;
-
+    private ArrayList restaurantsList;
+    private String zomatoApiUserKey = "4972ea7a10293fc07e997364eef03d3d";
+    private String googleApiUserKey = "AIzaSyC46JVz8sjO7cLKFytsG9LjuY11BrQu6_w";
+    private String keyword = "lunch";
+    private int cityId = 61;
+    private int restaurantCount = 20;
+    private int radius = 1500;
+    private double latitude = 51.490489;
+    private double longtitude = -0.167910;
+    public ZomatoCollection ZC;
+    public GoogleCollection GC;
     @Override
     public Receive createReceive() {
         ReceiveBuilder rbuilder = ReceiveBuilder.create();
@@ -47,53 +50,55 @@ public class RestaurantResearcherAgent extends AbstractActor {
         String sURL = "https://developers.zomato.com/api/v2.1/search?entity_id="+cityId
                 +"&entity_type=city&q=lunch&count="+restaurantCount
                 +"&lat="+latitude+"&lon="+longtitude+"&radius="+radius+"&sort=rating&order=desc";
-        String allRestaurantsJson = new String();
+        String zomatoRestaurantsJson = new String();
 
         try {
             URL url = new URL(sURL);
             HttpURLConnection request = (HttpURLConnection)url.openConnection ();
             request.setRequestMethod("GET");
-            request.setRequestProperty("user-key", apiUserKey);
+            request.setRequestProperty("user-key", zomatoApiUserKey);
             request.connect();
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(request.getInputStream()));
-            allRestaurantsJson = in.readLine();
+            zomatoRestaurantsJson = in.readLine();
             in.close();
+            System.out.println("[INFO] Zomato API data acquired.");
         } catch (IOException e) {
             System.out.println("[INFO] Zomato API not responding.");
             e.printStackTrace();
         }
 
         Gson gJson = new Gson();
-        RestaurantCollection test = gJson.fromJson(allRestaurantsJson, RestaurantCollection.class);
+        ZomatoCollection ZC = gJson.fromJson(zomatoRestaurantsJson, ZomatoCollection.class);
         System.out.println("[INFO] Zomato parsing completed");
     }
 
     private void getGoogleRestaurantsData() {
-        String sURL = "https://developers.zomato.com/api/v2.1/search?entity_id="+cityId
-                +"&entity_type=city&q=lunch&count="+restaurantCount
-                +"&lat="+latitude+"&lon="+longtitude+"&radius="+radius+"&sort=rating&order=desc";
-        String allRestaurantsJson = new String();
+        String sURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
+                "location="+latitude+","+longtitude+"&radius="+radius+"&type=restaurant"+
+                "&keyword="+keyword+"&key="+googleApiUserKey;
+        String googleRestaurantsJson = new String();
 
         try {
             URL url = new URL(sURL);
             HttpURLConnection request = (HttpURLConnection)url.openConnection ();
             request.setRequestMethod("GET");
-            request.setRequestProperty("user-key", apiUserKey);
             request.connect();
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(request.getInputStream()));
-            allRestaurantsJson = in.readLine();
+            String tmpLine = "";
+            while((tmpLine = in.readLine()) != null) {
+                googleRestaurantsJson += tmpLine;
+            }
             in.close();
+            System.out.println("[INFO] Google Places API data acquired.");
         } catch (IOException e) {
+            System.out.println("[INFO] Google API not responding.");
             e.printStackTrace();
         }
 
-        JsonParser jsonParser = new JsonParser();
-        JsonObject jsonObject = (JsonObject)jsonParser.parse(allRestaurantsJson);
-        /*todo: Make conversion from json list restaurant class directly */
-        JsonArray jsonArr = jsonObject.getAsJsonArray("restaurants");
         Gson gJson = new Gson();
+        GoogleCollection GC = gJson.fromJson(googleRestaurantsJson, GoogleCollection.class);
+        System.out.println("[INFO] Google parsing completed");
     }
-
 }
