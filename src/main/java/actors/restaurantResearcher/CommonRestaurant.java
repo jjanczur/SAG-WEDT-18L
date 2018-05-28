@@ -1,5 +1,10 @@
 package actors.restaurantResearcher;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class CommonRestaurant {
     public int zomato_id;
     public String google_id;
@@ -18,6 +23,7 @@ public class CommonRestaurant {
         name = rname;
         address = raddress;
     };
+
     public CommonRestaurant(String rid, String rorigin,
                             String dm, String rname,
                             String raddress) {
@@ -28,4 +34,6 @@ public class CommonRestaurant {
         name = rname;
         address = raddress;
     };
+
+
 }

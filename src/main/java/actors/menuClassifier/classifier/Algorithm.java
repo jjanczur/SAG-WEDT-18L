@@ -1,7 +1,7 @@
 package actors.menuClassifier.classifier;
 
-import actors.restaurantResearcher.Restaurant;
-import actors.restaurantResearcher.RestaurantCollection;
+
+import actors.restaurantResearcher.CommonRestaurant;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
@@ -50,16 +50,17 @@ public class Algorithm {
         this.numDocuments = numDocuments;
     }
 
-    public Algorithm(RestaurantCollection restaurants, String searchingMenu) {
-        this.numDocuments = restaurants.restaurants.size();
+    public Algorithm(List<CommonRestaurant> restaurants, List<String> searchingMenus) {
+        this.numDocuments = restaurants.size();
 
+        String searchingMenu = searchingMenus.get(0);
         this.tokensSearching = getLemmizationAndUseStopWords((getAnnotatedDocument(searchingMenu)).tokens());
 
         List<RestaurantClassifierWrapper> restaurantsCW = new ArrayList<RestaurantClassifierWrapper>();
 
         Counter<String> dfCounter = new ClassicCounter<String>();
 
-        for (Restaurant restaurant : restaurants.restaurants) {
+        for (CommonRestaurant restaurant : restaurants) {
 
             RestaurantClassifierWrapper restaurantCW = new RestaurantClassifierWrapper(restaurant);
 
@@ -156,9 +157,9 @@ public class Algorithm {
         Map<String, Double> tfIdfs = new HashMap<String, Double>();
 
         for (String token : tokensAfterLemma) {
-            if(selectTfIDFWeight == 1){
+            if (selectTfIDFWeight == 1) {
                 tfIdfs.put(token, TfIdf.tfIDFWeightNormalize(token, tfs, this.numDocuments, this.dfCounter, tfMax));
-            }else{
+            } else {
                 tfIdfs.put(token, TfIdf.tfIDFWeightSublinear(token, tfs, this.numDocuments, this.dfCounter));
             }
         }
@@ -176,9 +177,9 @@ public class Algorithm {
         double tfMax = Collections.max(tfs.entrySet(), Map.Entry.comparingByValue()).getValue();
 
         for (String token : restaurantCW.getTokensAfterLemma()) {
-            if(selectTfIDFWeight == 1){
+            if (selectTfIDFWeight == 1) {
                 tfIdfs.put(token, TfIdf.tfIDFWeightNormalize(token, tfs, this.numDocuments, this.dfCounter, tfMax));
-            }else{
+            } else {
                 tfIdfs.put(token, TfIdf.tfIDFWeightSublinear(token, tfs, this.numDocuments, this.dfCounter));
             }
         }
@@ -196,9 +197,9 @@ public class Algorithm {
         Map<String, Double> tfIdfs = new HashMap<String, Double>();
 
         for (String token : tokensAfterLemma) {
-            if(selectTfIDFWeight == 1){
+            if (selectTfIDFWeight == 1) {
                 tfIdfs.put(token, TfIdf.tfIDFWeightNormalize(token, tfs, this.numDocuments, this.dfCounter, tfMax));
-            }else{
+            } else {
                 tfIdfs.put(token, TfIdf.tfIDFWeightSublinear(token, tfs, this.numDocuments, this.dfCounter));
             }
         }
@@ -228,14 +229,25 @@ public class Algorithm {
     }
 
     public static void test1() {
-        String searchingMenu = "roasted fish and chips and sauce and cucumber";
-        RestaurantCollection restaurantsCollection = new RestaurantCollection();
+        String searchingMenu1 = "Roasted fish and chips and sauce and cucumber.";
+        String searchingMenu2 = "Lemon-sesame salsa.";
+        List<String> searchingMenus = new ArrayList<String>();
+        searchingMenus.add(searchingMenu1);
+        searchingMenus.add(searchingMenu2);
 
-        restaurantsCollection.restaurants.add(new Restaurant("roasted fish and chips"));
-        restaurantsCollection.restaurants.add(new Restaurant("Gravlax in lemon-sesame salsa with fresh coriander, chilli and cucumber"));
-        restaurantsCollection.restaurants.add(new Restaurant(searchingMenu));
+        List<CommonRestaurant> restaurantsCollection = new ArrayList<CommonRestaurant>();
 
-        Algorithm algorithm = new Algorithm(restaurantsCollection, searchingMenu);
+        restaurantsCollection.add(new CommonRestaurant(1, "zomato", "Roasted fish and chips.",
+                "U Szymona", "Plac Szymiego 23/147"));
+
+        restaurantsCollection.add(new CommonRestaurant(2, "zomato", "Gravlax in lemon-sesame salsa with " +
+                "fresh coriander, chilli and cucumber.",
+                "U Jacka", "Plac Jackowsikiego"));
+
+        restaurantsCollection.add(new CommonRestaurant("1", "google", searchingMenu1 + " " + searchingMenu2,
+                "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37"));
+
+        Algorithm algorithm = new Algorithm(restaurantsCollection, searchingMenus);
         algorithm.classifyRestaurants();
 
         log.info("Scores tfidf Method 1:");

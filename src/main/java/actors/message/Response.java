@@ -1,11 +1,13 @@
 package actors.message;
 
-import actors.restaurantResearcher.RestaurantCollection;
+
+import actors.restaurantResearcher.CommonRestaurant;
 import akka.actor.ActorRef;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Setter
 @Getter
@@ -15,10 +17,10 @@ public class Response implements Serializable {
 
     private ActorRef requester;
 
-    private RestaurantCollection restaurantCollection;
+    private List<CommonRestaurant> restaurants;
 
-    public Response(ActorRef requester, RestaurantCollection restaurantCollection) {
+    public Response(ActorRef requester, List<CommonRestaurant> restaurants) {
         this.requester = requester;
-        this.restaurantCollection = restaurantCollection;
+        this.restaurants = restaurants;
     }
 }
