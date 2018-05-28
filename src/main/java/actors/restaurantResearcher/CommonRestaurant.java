@@ -40,9 +40,10 @@ public class CommonRestaurant {
             return false;
         if (getClass() != obj.getClass())
             return false;
-        CommonRestaurant comp = (CommonRestaurant) obj;
-        if (comp.name.contains(name))
-            return true;
+        if(obj instanceof CommonRestaurant) {
+            CommonRestaurant comp = (CommonRestaurant) obj;
+            return this.name.equals(comp.name);
+        }
         return false;
     }
 }
