@@ -104,13 +104,6 @@
 
 
         <!--NLP-->
-
-        <dependency>
-            <groupId>org.apache.opennlp</groupId>
-            <artifactId>opennlp-tools</artifactId>
-            <version>1.8.4</version>
-        </dependency>
-
         <dependency>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
