@@ -4,6 +4,8 @@ import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.gson.*;
+import com.sun.istack.internal.Nullable;
+import org.apache.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,10 +16,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantResearcherAgent extends AbstractActor {
+    private static final Logger log = Logger.getLogger(RestaurantResearcherAgent.class);
+
     //variables
     private ArrayList restaurantsList;
     private String zomatoApiUserKey = "4972ea7a10293fc07e997364eef03d3d";
     private String googleApiUserKey = "AIzaSyC46JVz8sjO7cLKFytsG9LjuY11BrQu6_w";
+    //https://developers.facebook.com/tools/explorer/?method=GET&path=me%3Ffields%3Did%2Cname&version=v3.0
+    private String facebookApiUserKey = "EAACEdEose0cBADHZCXfsjoEIR4WdKZBaPYGQXvSuIX0TJesjWmxLPxzHqnvsxZBZBIVaygt2KGw7xnzODHZCP3cDaO0ixfjGmhZAZB2kxznrCCZBnphdJkBpErcJZCKSZBqsHIHFZCDJH3oYtZAtG1se4243EVrjhBDdLPWnZA6yjapPifgEFSSpLRH2D4BNa3Rd5XnPC3ZBNxRq0UPAZDZD";
+
     private String keyword = "lunch";
     private int cityId = 61;
     private int restaurantCount = 20;
@@ -26,6 +33,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
     private double longtitude = -0.167910;
     public ZomatoCollection ZC;
     public GoogleCollection GC;
+    public FacebookCollection FC;
     public List<CommonRestaurant> CommonRestaurantList;
     @Override
     public Receive createReceive() {
@@ -36,6 +44,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
             if(s.contains("get-restaurants")) {
                 getZomatoRestaurantsData();
                 getGoogleRestaurantsData();
+                getFacebookRestaurantsData();
                 unifyRestaurants();
             }
             else if(s.contains("get-zomato"))
@@ -110,6 +119,50 @@ public class RestaurantResearcherAgent extends AbstractActor {
         GC = gJson.fromJson(googleRestaurantsJson, GoogleCollection.class);
         System.out.println("[INFO] Google parsing completed");
     }
+
+    private void getFacebookRestaurantsData() {
+
+        //        String sURL = "https://graph.facebook.com/v3.0/search?center=51.490489,-0.167910&distance=1500&limit=50/feed&q=restaurant&type=place?access_token=EAACEdEose0cBAKVAmtvZBfYsT1SMDMrX1Yr0e2JFINOF7IaZCLHxtQkYIRRH4DwsvhnbAp5YWZB4L0ul9zLYMmIu3bUOyX4B3w8uOhObjWFAZCYmxzyvZAfBDLqVEaNonudEz5cmXEsddPIYhYa5qoX3RrSXJAU4mFjXsoZCgWsW0cUdjkHnzPQHBBe4rgupHRwUfxtlbnFwZDZD";
+
+        String sURL = "https://graph.facebook.com/v3.0/search?center="+latitude+","
+                +longtitude+"&distance="+radius+
+                "&limit=50/feed&q=restaurant&type=place"+"&access_token="+facebookApiUserKey;
+
+        String facebookRestaurantsJson;
+
+        facebookRestaurantsJson = getJsonResponse(sURL);
+
+        Gson gJson = new Gson();
+        FC = gJson.fromJson(facebookRestaurantsJson, FacebookCollection.class);
+        log.info("Facebook parsing completed");
+    }
+
+    @Nullable
+    private String getJsonResponse(String sURL) {
+        String facebookRestaurantsJson = null;
+        try {
+            URL url = new URL(sURL);
+            HttpURLConnection request = (HttpURLConnection)url.openConnection ();
+            request.setRequestMethod("GET");
+            request.connect();
+            BufferedReader in = new BufferedReader(
+                    new InputStreamReader(request.getInputStream()));
+            String tmpLine;
+            while((tmpLine = in.readLine()) != null) {
+                facebookRestaurantsJson += tmpLine;
+            }
+            in.close();
+            log.info(" Facebook Places API data acquired.");
+        } catch (IOException e) {
+            log.error("Facebook API not responding. Message: " + e.getMessage(), e);
+            e.printStackTrace();
+        }
+        if(facebookRestaurantsJson==null){
+            log.warn("Facebook response is null");
+        }
+        return facebookRestaurantsJson;
+    }
+
     private void unifyRestaurants(){
         CommonRestaurantList = new ArrayList<CommonRestaurant>();
         for(int i=0; i<ZC.restaurants.size();i++){
