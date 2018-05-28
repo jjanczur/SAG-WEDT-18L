@@ -3,11 +3,10 @@ package actors.lunchServer;
 import actors.menuClassifier.MenuClassifierAgent;
 import actors.message.Classify;
 import actors.restaurantResearcher.Restaurant;
-import actors.restaurantResearcher.RestaurantCollection;
+import actors.restaurantResearcher.ZomatoCollection;
 import actors.restaurantResearcher.RestaurantResearcherAgent;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-
 /**
  * Klasa uruchamiająca serwer systemu. Serwer zbiera informacje nt. uruchomionych w
  * systemie agentów oraz przyjmuje zapytania od użytkownika i rozsyła je do RestaurantResearcher.
@@ -33,25 +32,26 @@ public class LunchServer {
 
         ActorSystem system = ActorSystem.create("Actorsystem");
         final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
-        research.tell("get-zomato", ActorRef.noSender());
+        research.tell("get-restaurants", ActorRef.noSender());
 
 
         final ActorRef classifyActor = system.actorOf(MenuClassifierAgent.props(), "Calssifier");
 
         String searchingMenu = "roasted fish and chips and sauce and cucumber";
-        RestaurantCollection restaurantsCollection = new RestaurantCollection();
+        ZomatoCollection restaurantsCollection = new ZomatoCollection();
 
         restaurantsCollection.restaurants.add(new Restaurant("roasted fish and chips"));
         restaurantsCollection.restaurants.add(new Restaurant("Gravlax in lemon-sesame salsa with fresh coriander, chilli and cucumber"));
         restaurantsCollection.restaurants.add(new Restaurant(searchingMenu));
 
         Classify classify = new Classify();
-        classify.setSearchingMenu(searchingMenu);
-        classify.setRestaurantC(restaurantsCollection);
+        //classify.setSearchingMenu(searchingMenu);
+        //classify.setRestaurantC(restaurantsCollection);
 
         classifyActor.tell(classify, ActorRef.noSender());
 
         //system.actorOf(LunchServerAgent.props());
+
     }
 }
 
