@@ -4,6 +4,7 @@ package actors.message;
 import actors.restaurantResearcher.CommonRestaurant;
 import akka.actor.ActorRef;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Setter
 @Getter
+@NoArgsConstructor
 public class Response implements Serializable {
 
     private static final long serialVersionUID = -4569229744007790163L;

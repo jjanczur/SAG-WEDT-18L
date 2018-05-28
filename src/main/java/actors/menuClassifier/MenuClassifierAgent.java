@@ -6,6 +6,7 @@ import actors.message.Classify;
 import actors.message.Response;
 import actors.restaurantResearcher.CommonRestaurant;
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -13,10 +14,15 @@ import akka.japi.pf.ReceiveBuilder;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MenuClassifierAgent extends AbstractActor {
 
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+
+    public MenuClassifierAgent() {
+        log.info("[SUCCESS] Started MenuClassifierAgent!");
+    }
 
     @Override
     public Receive createReceive() {
@@ -25,12 +31,15 @@ public class MenuClassifierAgent extends AbstractActor {
         rbuilder.match(Classify.class, classify -> {
             if (classify.getSearchingMenus() != null && classify.getSearchingMenus().size() > 0) {
 
+
                 List<CommonRestaurant> restaurants = classifyRestaurants(classify.getRestaurants(), classify.getSearchingMenus());
+                //getSender().tell(new Response(classify.getRequester(), restaurants), getSelf());
+                ActorRef as = getSender();
                 getSender().tell(new Response(classify.getRequester(), restaurants), getSelf());
                 log.info("Restaurant classification completed");
 
             } else {
-                System.out.println("[WARN] The message string does not specify the data source.");
+                log.info("[WARN] The message string does not specify the data source.");
             }
 
         });
@@ -51,11 +60,16 @@ public class MenuClassifierAgent extends AbstractActor {
         Algorithm alg = new Algorithm(restaurants, searchingMenus);
         alg.classifyRestaurants();
 
-        List<CommonRestaurant> sortedRestaurants= new ArrayList<CommonRestaurant>();
+        List<CommonRestaurant> sortedRestaurants = new ArrayList<CommonRestaurant>();
 
+        for (Map.Entry<Double, RestaurantClassifierWrapper> entry : alg.getRanking().entrySet()) {
+            sortedRestaurants.add(entry.getValue().getRestaurant());
+        }
+/*
         for (RestaurantClassifierWrapper restaurantCW : alg.getRestaurantsCW()) {
             sortedRestaurants.add(restaurantCW.getRestaurant());
         }
+*/
 
         return sortedRestaurants;
 

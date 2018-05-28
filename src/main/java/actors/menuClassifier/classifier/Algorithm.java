@@ -14,6 +14,7 @@ import org.apache.log4j.PropertyConfigurator;
 import utils.Util;
 
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.*;
 
 
@@ -37,8 +38,10 @@ public class Algorithm {
     private final Counter<String> dfCounter;
     private final int numDocuments;
     private List<RestaurantClassifierWrapper> restaurantsCW;
-    private List<String> tokensSearching;
-    private double[] vecSearching;
+    //private List<String> tokensSearching;
+    private List<List<String>> searchingMenusTokens = new ArrayList<List<String>>();
+    private Map<List<String>, double[]> vecsSearching = new HashMap<>();
+    private Map<Double, RestaurantClassifierWrapper> ranking;
     /*
     1 - Maximum tf normalization
     2 - Sublinear tf scaling
@@ -53,8 +56,14 @@ public class Algorithm {
     public Algorithm(List<CommonRestaurant> restaurants, List<String> searchingMenus) {
         this.numDocuments = restaurants.size();
 
-        String searchingMenu = searchingMenus.get(0);
+   /*     String searchingMenu = searchingMenus.get(0);
         this.tokensSearching = getLemmizationAndUseStopWords((getAnnotatedDocument(searchingMenu)).tokens());
+*/
+        if (searchingMenus != null) {
+            for (String searchingMenu1 : searchingMenus) {
+                this.searchingMenusTokens.add(getLemmizationAndUseStopWords((getAnnotatedDocument(searchingMenu1)).tokens()));
+            }
+        }
 
         List<RestaurantClassifierWrapper> restaurantsCW = new ArrayList<RestaurantClassifierWrapper>();
 
@@ -81,19 +90,42 @@ public class Algorithm {
     private void copmputeTfIdfAndTransformToVec() {
         for (RestaurantClassifierWrapper restaurantCW : this.getRestaurantsCW()) {
             restaurantCW.setTfIdfs(getTfIdfs(restaurantCW));
-            restaurantCW.setVec(transformToVec(tokensSearching, restaurantCW.getTfIdfs()));
+            //restaurantCW.setVec(transformToVec(tokensSearching, restaurantCW.getTfIdfs()));
+            for (List<String> searchingMenuTokens : this.searchingMenusTokens) {
+                restaurantCW.getVecs().put(searchingMenuTokens, transformToVec(searchingMenuTokens,
+                        restaurantCW.getTfIdfs()));
+            }
+
         }
-        this.setVecSearching(transformToVec(tokensSearching, getTfIdfs(tokensSearching)));
+        for (List<String> searchingMenuTokens : this.searchingMenusTokens) {
+            this.getVecsSearching().put(searchingMenuTokens,
+                    transformToVec(searchingMenuTokens, getTfIdfs(searchingMenuTokens)));
+        }
+        //this.setVecsSearching(transformToVec(tokensSearching, getTfIdfs(tokensSearching)));
     }
 
     private void computeCosineSimilarity() {
         for (RestaurantClassifierWrapper restaurantCW : this.getRestaurantsCW()) {
-            restaurantCW.setCosineSimilarity(CosineSimilarity.cosineSimilarity(restaurantCW.getVec(), this.getVecSearching()));
+/*            restaurantCW.setCosineSimilarity(CosineSimilarity.cosineSimilarity(restaurantCW.getVec(),
+                    this.getVecsSearching()));*/
+
+            for (Map.Entry<List<String>, double[]> entry : this.getVecsSearching().entrySet()) {
+                restaurantCW.getCosineSimilarities().put(entry.getKey(), CosineSimilarity.cosineSimilarity
+                        (restaurantCW.getVecs().get(entry.getKey()), entry.getValue()));
+            }
+
         }
     }
 
     private void sort() {
-        Collections.sort(this.restaurantsCW, new CosineSimilarityComaprator());
+        Map<Double, RestaurantClassifierWrapper> ranking = new TreeMap<>(Collections.reverseOrder());
+
+        for (RestaurantClassifierWrapper restaurant : this.restaurantsCW) {
+            ranking.put(restaurant.getCosineSimilarities().values().stream().mapToDouble(Number::doubleValue).sum(), restaurant);
+        }
+
+        this.ranking = ranking;
+        //Collections.sort(ranking, new CosineSimilarityComaprator());
     }
 
     private static List<String> loadStopWords() {
@@ -238,11 +270,11 @@ public class Algorithm {
         List<CommonRestaurant> restaurantsCollection = new ArrayList<CommonRestaurant>();
 
         restaurantsCollection.add(new CommonRestaurant(1, "zomato", "Roasted fish and chips.",
-                "U Szymona", "Plac Szymiego 23/147"));
+                "Nad zapracowanym Jackiem", "Plac Szymiego 23/147"));
 
         restaurantsCollection.add(new CommonRestaurant(2, "zomato", "Gravlax in lemon-sesame salsa with " +
                 "fresh coriander, chilli and cucumber.",
-                "U Jacka", "Plac Jackowsikiego"));
+                "U fajnego Pana Szymona", "Plac Jackowsikiego"));
 
         restaurantsCollection.add(new CommonRestaurant("1", "google", searchingMenu1 + " " + searchingMenu2,
                 "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37"));
@@ -250,9 +282,23 @@ public class Algorithm {
         Algorithm algorithm = new Algorithm(restaurantsCollection, searchingMenus);
         algorithm.classifyRestaurants();
 
-        log.info("Scores tfidf Method 1:");
-        for (RestaurantClassifierWrapper restaurantCW : algorithm.getRestaurantsCW()) {
-            log.info("Score :" + restaurantCW.getCosineSimilarity() + "\tMenu: " + restaurantCW.getRestaurant().getDailyMenu());
+        //log.info("Scores tfidf Method 1:");
+  /*      for (RestaurantClassifierWrapper restaurantCW : algorithm.getRestaurantsCW()) {
+            log.info("Score :" + rank.getCosineSimilarities().get('') + "\tMenu: " + restaurantCW.getRestaurant().getDailyMenu());
+        }*/
+
+        log.info("Searching menus: ");
+        for (String menu : searchingMenus) {
+            log.info("\t" + menu);
+        }
+
+        log.info("Restaurants ranking: ");
+        DecimalFormat df = new DecimalFormat("0.000000000");
+
+
+        for (Map.Entry<Double, RestaurantClassifierWrapper> entry : algorithm.getRanking().entrySet()) {
+            log.info("\tScore: " + df.format(entry.getKey()) + "\t Name: " + entry.getValue().getRestaurant().getName()
+                    + "\t DailyMenu: " + entry.getValue().getRestaurant().getDailyMenu());
         }
 
 
