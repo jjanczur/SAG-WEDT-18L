@@ -11,6 +11,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
 
 public class RestaurantResearcherAgent extends AbstractActor {
     //variables
@@ -25,16 +26,24 @@ public class RestaurantResearcherAgent extends AbstractActor {
     private double longtitude = -0.167910;
     public ZomatoCollection ZC;
     public GoogleCollection GC;
+    public List<CommonRestaurant> CommonRestaurantList;
     @Override
     public Receive createReceive() {
         ReceiveBuilder rbuilder = ReceiveBuilder.create();
 
         rbuilder.match(String.class, s -> {
             System.out.println("Received message: " + s.toLowerCase());
-            if(s.contains("zomato"))
+            if(s.contains("get-restaurants")) {
                 getZomatoRestaurantsData();
-            else if(s.contains("google"))
                 getGoogleRestaurantsData();
+                unifyRestaurants();
+            }
+            else if(s.contains("get-zomato"))
+                getZomatoRestaurantsData();
+            else if(s.contains("get-google"))
+                getGoogleRestaurantsData();
+            else if(s.contains("sum"))
+                unifyRestaurants();
             else
                 System.out.println("[WARN] The message string does not specify the data source.");
         });
@@ -69,7 +78,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
         }
 
         Gson gJson = new Gson();
-        ZomatoCollection ZC = gJson.fromJson(zomatoRestaurantsJson, ZomatoCollection.class);
+        ZC = gJson.fromJson(zomatoRestaurantsJson, ZomatoCollection.class);
         System.out.println("[INFO] Zomato parsing completed");
     }
 
@@ -98,7 +107,18 @@ public class RestaurantResearcherAgent extends AbstractActor {
         }
 
         Gson gJson = new Gson();
-        GoogleCollection GC = gJson.fromJson(googleRestaurantsJson, GoogleCollection.class);
+        GC = gJson.fromJson(googleRestaurantsJson, GoogleCollection.class);
         System.out.println("[INFO] Google parsing completed");
+    }
+    private void unifyRestaurants(){
+        CommonRestaurantList = new ArrayList<CommonRestaurant>();
+        for(int i=0; i<ZC.restaurants.size();i++){
+            CommonRestaurant tmp_zomato = ZC.generateCommon(i);
+            CommonRestaurant tmp_google = GC.generateCommon(i);
+            CommonRestaurantList.add(tmp_zomato);
+            CommonRestaurantList.add(tmp_google);
+        }
+        System.out.println("[INFO] Zomato CR list creation completed.");
+
     }
 }

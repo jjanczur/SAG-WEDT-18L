@@ -8,7 +8,7 @@ public class Location {
 
     @SerializedName("address")
     @Expose
-    private String address;
+    public String address;
     @SerializedName("locality")
     @Expose
     private String locality;

@@ -4,6 +4,7 @@ package actors.restaurantResearcher;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import static java.lang.Integer.parseInt;
 
 public class GoogleCollection {
 
@@ -50,6 +51,11 @@ public class GoogleCollection {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public CommonRestaurant generateCommon(int index){
+        return new CommonRestaurant(results.get(index).getId(), "Google",
+                null, results.get(index).getName().toLowerCase(), results.get(index).getVicinity());
     }
 
 }
