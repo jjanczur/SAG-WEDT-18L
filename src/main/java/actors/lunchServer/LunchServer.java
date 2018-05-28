@@ -33,6 +33,11 @@ public class LunchServer {
         // Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
 
         ActorSystem system = ActorSystem.create("Actorsystem");
+
+
+        final ActorRef server = system.actorOf(LunchServerAgent.props(), "Server");
+
+
         final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
         research.tell("get-restaurants", ActorRef.noSender());
 
@@ -49,21 +54,23 @@ public class LunchServer {
 
         List<CommonRestaurant> restaurantsCollection = new ArrayList<CommonRestaurant>();
 
+
         restaurantsCollection.add(new CommonRestaurant(1, "zomato", "Roasted fish and chips.",
-                "U Szymona", "Plac Szymiego 23/147"));
+                "Nad zapracowanym Jackiem", "Plac Szymiego 23/147"));
 
         restaurantsCollection.add(new CommonRestaurant(2, "zomato", "Gravlax in lemon-sesame salsa with " +
                 "fresh coriander, chilli and cucumber.",
-                "U Jacka", "Plac Jackowsikiego"));
+                "U fajnego Pana Szymona", "Plac Jackowsikiego"));
 
         restaurantsCollection.add(new CommonRestaurant("1", "google", searchingMenu1 + " " + searchingMenu2,
                 "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37"));
+
 
         Classify classify = new Classify();
         classify.setSearchingMenus(searchingMenus);
         classify.setRestaurants(restaurantsCollection);
 
-        classifyActor.tell(classify, ActorRef.noSender());
+        classifyActor.tell(classify, server);
 
 
     }
