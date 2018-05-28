@@ -41,6 +41,7 @@ public class ZomatoCollection {
     public CommonRestaurant generateCommon(int index){
         return new CommonRestaurant(getRestaurantId(index), "Zomato",
                 getRestaurantDailyMenu(index), restaurants.get(index).restaurant.getName().toLowerCase(),
-                restaurants.get(index).restaurant.getLocation().getAddress());
+                restaurants.get(index).restaurant.getLocation().getAddress(),
+                restaurants.get(index).restaurant.getUrl());
     }
 }

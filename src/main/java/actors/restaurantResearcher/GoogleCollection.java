@@ -55,7 +55,7 @@ public class GoogleCollection {
 
     public CommonRestaurant generateCommon(int index){
         return new CommonRestaurant(results.get(index).getId(), "Google",
-                null, results.get(index).getName().toLowerCase(), results.get(index).getVicinity());
+                null, results.get(index).getName().toLowerCase(), results.get(index).getVicinity(),
+                results.get(index).getReference());
     }
-
 }

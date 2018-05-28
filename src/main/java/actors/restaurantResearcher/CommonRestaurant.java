@@ -1,5 +1,7 @@
 package actors.restaurantResearcher;
 
+import java.net.URL;
+
 public class CommonRestaurant {
     public int zomato_id;
     public String google_id;
@@ -7,10 +9,11 @@ public class CommonRestaurant {
     public String dailyMenu;
     public String name;
     public String address;
+    public String url;
 
     public CommonRestaurant(int rid, String rorigin,
                             String dm, String rname,
-                            String raddress) {
+                            String raddress, String rurl) {
 
         zomato_id = rid;
         origin = rorigin;
@@ -20,7 +23,7 @@ public class CommonRestaurant {
     };
     public CommonRestaurant(String rid, String rorigin,
                             String dm, String rname,
-                            String raddress) {
+                            String raddress, String rurl) {
 
         google_id = rid;
         origin = rorigin;
@@ -28,4 +31,18 @@ public class CommonRestaurant {
         name = rname;
         address = raddress;
     };
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        CommonRestaurant comp = (CommonRestaurant) obj;
+        if (comp.name.contains(name))
+            return true;
+        return false;
+    }
 }

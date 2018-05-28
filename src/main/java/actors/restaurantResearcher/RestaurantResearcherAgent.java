@@ -115,10 +115,13 @@ public class RestaurantResearcherAgent extends AbstractActor {
         for(int i=0; i<ZC.restaurants.size();i++){
             CommonRestaurant tmp_zomato = ZC.generateCommon(i);
             CommonRestaurant tmp_google = GC.generateCommon(i);
-            CommonRestaurantList.add(tmp_zomato);
-            CommonRestaurantList.add(tmp_google);
+            CommonRestaurant test1 = new CommonRestaurant(12, "Zomato", null, "Test", null, null);
+            CommonRestaurant test2 = new CommonRestaurant("asdqaweq", "Goole", null, "Test2", null, null);
+            CommonRestaurantList.add(test1);
+            if(CommonRestaurantList.Any(test2.name)) {
+                System.out.println("powt");
+            }
         }
         System.out.println("[INFO] Zomato CR list creation completed.");
-
     }
 }
