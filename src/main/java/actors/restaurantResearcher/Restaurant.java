@@ -15,9 +15,9 @@ public class Restaurant {
 
     @SerializedName("restaurant")
     @Expose
-    private RestaurantZomato restaurant;
+    public RestaurantZomato restaurant;
 
-    private String dailyMenu;
+    public String dailyMenu;
 
     public Restaurant(RestaurantZomato restaurant) {
         this.restaurant = restaurant;
