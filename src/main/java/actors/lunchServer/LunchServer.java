@@ -2,7 +2,12 @@ package actors.lunchServer;
 
 import actors.menuClassifier.MenuClassifierAgent;
 import actors.message.Classify;
+
+import actors.message.Search;
+import actors.restaurantResearcher.Restaurant;
+import actors.restaurantResearcher.ZomatoCollection;
 import actors.restaurantResearcher.CommonRestaurant;
+
 import actors.restaurantResearcher.RestaurantResearcherAgent;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -32,6 +37,9 @@ public class LunchServer {
         //Config cfg = ConfigFactory.load("conf/server");
         // Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
 
+
+        Search search = new Search(51.490489, -0.167910, 1500);
+
         ActorSystem system = ActorSystem.create("Actorsystem");
 
 
@@ -39,7 +47,7 @@ public class LunchServer {
 
 
         final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
-        research.tell("get-restaurants", ActorRef.noSender());
+        research.tell(search, ActorRef.noSender());
 
 
         // test klasyfiaktora menu
@@ -70,7 +78,12 @@ public class LunchServer {
         classify.setSearchingMenus(searchingMenus);
         classify.setRestaurants(restaurantsCollection);
 
+
+        classifyActor.tell(classify, ActorRef.noSender());
+        classifyActor.tell(classify, ActorRef.noSender());
+
         classifyActor.tell(classify, server);
+
 
 
     }
