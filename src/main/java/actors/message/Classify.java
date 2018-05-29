@@ -1,27 +1,27 @@
 package actors.message;
 
-import actors.restaurantResearcher.RestaurantCollection;
+import actors.restaurantResearcher.CommonRestaurant;
 import akka.actor.ActorRef;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 @Getter
 @Setter
 @NoArgsConstructor
 public class Classify implements Serializable {
     private ActorRef requester;
-    private String searchingMenu;
-    private RestaurantCollection restaurantC;
+    private List<String> searchingMenus;
+    private List<CommonRestaurant> restaurants;
     private static final long serialVersionUID = -6662420828480543859L;
 
-    public Classify(ActorRef requester, String searchingMenu, RestaurantCollection restaurantC){
+    public Classify(ActorRef requester, List<String> searchingMenus, List<CommonRestaurant> restaurants) {
         this.requester = requester;
-        this.searchingMenu = searchingMenu;
-        this.restaurantC = restaurantC;
+        this.searchingMenus = searchingMenus;
+        this.restaurants = restaurants;
     }
-
 
 }

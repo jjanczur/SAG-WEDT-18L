@@ -4,30 +4,42 @@ import actors.menuClassifier.classifier.Algorithm;
 import actors.menuClassifier.classifier.RestaurantClassifierWrapper;
 import actors.message.Classify;
 import actors.message.Response;
-import actors.restaurantResearcher.RestaurantCollection;
+import actors.restaurantResearcher.CommonRestaurant;
 import akka.actor.AbstractActor;
+import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 public class MenuClassifierAgent extends AbstractActor {
 
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+
+    public MenuClassifierAgent() {
+        log.info("[SUCCESS] Started MenuClassifierAgent!");
+    }
 
     @Override
     public Receive createReceive() {
         ReceiveBuilder rbuilder = ReceiveBuilder.create();
 
         rbuilder.match(Classify.class, classify -> {
-            if (classify.getSearchingMenu() != null && classify.getSearchingMenu().length() > 0) {
+            if (classify.getSearchingMenus() != null && classify.getSearchingMenus().size() > 0) {
 
-                RestaurantCollection restaurantC = classifyRestaurants(classify.getRestaurantC(), classify.getSearchingMenu());
-                getSender().tell(new Response(classify.getRequester(), restaurantC), getSelf());
+
+                List<CommonRestaurant> restaurants = classifyRestaurants(classify.getRestaurants(), classify.getSearchingMenus());
+                //getSender().tell(new Response(classify.getRequester(), restaurants), getSelf());
+                ActorRef as = getSender();
+                getSender().tell(new Response(classify.getRequester(), restaurants), getSelf());
                 log.info("Restaurant classification completed");
 
             } else {
-                System.out.println("[WARN] The message string does not specify the data source.");
+                log.info("[WARN] The message string does not specify the data source.");
             }
 
         });
@@ -43,18 +55,23 @@ public class MenuClassifierAgent extends AbstractActor {
     }
 
 
-    public RestaurantCollection classifyRestaurants(RestaurantCollection restaurants, String searchingMenu) {
+    public List<CommonRestaurant> classifyRestaurants(List<CommonRestaurant> restaurants, List<String> searchingMenus) {
 
-        Algorithm alg = new Algorithm(restaurants, searchingMenu);
+        Algorithm alg = new Algorithm(restaurants, searchingMenus);
         alg.classifyRestaurants();
 
-        RestaurantCollection restaurantCollection = new RestaurantCollection();
+        List<CommonRestaurant> sortedRestaurants = new ArrayList<CommonRestaurant>();
 
-        for (RestaurantClassifierWrapper restaurantCW : alg.getRestaurantsCW()) {
-            restaurantCollection.restaurants.add(restaurantCW.getRestaurant());
+        for (Map.Entry<Double, RestaurantClassifierWrapper> entry : alg.getRanking().entrySet()) {
+            sortedRestaurants.add(entry.getValue().getRestaurant());
         }
+/*
+        for (RestaurantClassifierWrapper restaurantCW : alg.getRestaurantsCW()) {
+            sortedRestaurants.add(restaurantCW.getRestaurant());
+        }
+*/
 
-        return restaurantCollection;
+        return sortedRestaurants;
 
     }
 

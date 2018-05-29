@@ -1,6 +1,12 @@
 package actors.restaurantResearcher;
 
+
 import java.net.URL;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
 
 public class CommonRestaurant {
     public int zomato_id;
@@ -21,6 +27,7 @@ public class CommonRestaurant {
         name = rname;
         address = raddress;
     };
+
     public CommonRestaurant(String rid, String rorigin,
                             String dm, String rname,
                             String raddress, String rurl) {
@@ -31,6 +38,7 @@ public class CommonRestaurant {
         name = rname;
         address = raddress;
     };
+
 
     @Override
     public boolean equals(Object obj) {
@@ -46,4 +54,5 @@ public class CommonRestaurant {
         }
         return false;
     }
+
 }
