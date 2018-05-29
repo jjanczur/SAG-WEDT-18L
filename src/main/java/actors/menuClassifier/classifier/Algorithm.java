@@ -270,14 +270,14 @@ public class Algorithm {
         List<CommonRestaurant> restaurantsCollection = new ArrayList<CommonRestaurant>();
 
         restaurantsCollection.add(new CommonRestaurant(1, "zomato", "Roasted fish and chips.",
-                "Nad zapracowanym Jackiem", "Plac Szymiego 23/147"));
+                "Nad zapracowanym Jackiem", "Plac Szymiego 23/147", "jacek.pl"));
 
         restaurantsCollection.add(new CommonRestaurant(2, "zomato", "Gravlax in lemon-sesame salsa with " +
                 "fresh coriander, chilli and cucumber.",
-                "U fajnego Pana Szymona", "Plac Jackowsikiego"));
+                "U fajnego Pana Szymona", "Plac Jackowsikiego", "szymix.pl"));
 
         restaurantsCollection.add(new CommonRestaurant("1", "google", searchingMenu1 + " " + searchingMenu2,
-                "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37"));
+                "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37", "dominix.pl"));
 
         Algorithm algorithm = new Algorithm(restaurantsCollection, searchingMenus);
         algorithm.classifyRestaurants();

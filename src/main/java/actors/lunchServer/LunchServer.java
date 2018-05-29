@@ -1,7 +1,7 @@
 package actors.lunchServer;
 
 import actors.menuClassifier.MenuClassifierAgent;
-import actors.message.Classify;
+import actors.message.*;
 
 import actors.message.Search;
 import actors.restaurantResearcher.Restaurant;
@@ -64,16 +64,16 @@ public class LunchServer {
 
 
         restaurantsCollection.add(new CommonRestaurant(1, "zomato", "Roasted fish and chips.",
-                "Nad zapracowanym Jackiem", "Plac Szymiego 23/147"));
+                "Nad zapracowanym Jackiem", "Plac Szymiego 23/147", "jacek.pl"));
 
         restaurantsCollection.add(new CommonRestaurant(2, "zomato", "Gravlax in lemon-sesame salsa with " +
                 "fresh coriander, chilli and cucumber.",
-                "U fajnego Pana Szymona", "Plac Jackowsikiego"));
+                "U fajnego Pana Szymona", "Plac Jackowsikiego", "szymix.pl"));
 
         restaurantsCollection.add(new CommonRestaurant("1", "google", searchingMenu1 + " " + searchingMenu2,
-                "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37"));
+                "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37", "dominix.pl"));
 
-
+        /*
         Classify classify = new Classify();
         classify.setSearchingMenus(searchingMenus);
         classify.setRestaurants(restaurantsCollection);
@@ -83,7 +83,7 @@ public class LunchServer {
         classifyActor.tell(classify, ActorRef.noSender());
 
         classifyActor.tell(classify, server);
-
+        */
 
 
     }

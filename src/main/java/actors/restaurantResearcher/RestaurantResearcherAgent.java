@@ -109,7 +109,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
     }
 
 
-    private void getFacebookRestaurantsData() {
+    private void getFacebookRestaurantsData(double latitude, double longtitude, int radius) {
 
         //        String sURL = "https://graph.facebook.com/v3.0/search?center=51.490489,-0.167910&distance=1500&limit=50/feed&q=restaurant&type=place?access_token=EAACEdEose0cBAKVAmtvZBfYsT1SMDMrX1Yr0e2JFINOF7IaZCLHxtQkYIRRH4DwsvhnbAp5YWZB4L0ul9zLYMmIu3bUOyX4B3w8uOhObjWFAZCYmxzyvZAfBDLqVEaNonudEz5cmXEsddPIYhYa5qoX3RrSXJAU4mFjXsoZCgWsW0cUdjkHnzPQHBBe4rgupHRwUfxtlbnFwZDZD";
 
