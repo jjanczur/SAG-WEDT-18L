@@ -7,6 +7,7 @@ import akka.japi.pf.ReceiveBuilder;
 import com.google.gson.*;
 import com.sun.istack.internal.Nullable;
 import org.apache.log4j.Logger;
+import utils.Util;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,7 +28,8 @@ public class RestaurantResearcherAgent extends AbstractActor {
     private String facebookApiUserKey = "EAACEdEose0cBADHZCXfsjoEIR4WdKZBaPYGQXvSuIX0TJesjWmxLPxzHqnvsxZBZBIVaygt2KGw7xnzODHZCP3cDaO0ixfjGmhZAZB2kxznrCCZBnphdJkBpErcJZCKSZBqsHIHFZCDJH3oYtZAtG1se4243EVrjhBDdLPWnZA6yjapPifgEFSSpLRH2D4BNa3Rd5XnPC3ZBNxRq0UPAZDZD";
 
     private String keyword = "lunch";
-    private int restaurantCount = 20;
+    private int restaurantCount = 50;
+    private int randMenuLines = 150;
     public ZomatoCollection ZC;
     public GoogleCollection GC;
     public FacebookCollection FC;
@@ -68,15 +70,23 @@ public class RestaurantResearcherAgent extends AbstractActor {
                     new InputStreamReader(request.getInputStream()));
             zomatoRestaurantsJson = in.readLine();
             in.close();
-            System.out.println("[INFO] Zomato API data acquired.");
+            log.info("[INFO] Zomato API data acquired.");
         } catch (IOException e) {
-            System.out.println("[INFO] Zomato API not responding.");
+            log.info("[INFO] Zomato API not responding.");
             e.printStackTrace();
         }
 
         Gson gJson = new Gson();
         ZC = gJson.fromJson(zomatoRestaurantsJson, ZomatoCollection.class);
-        System.out.println("[INFO] Zomato parsing completed");
+        Util util = new Util();
+        for (Restaurant restaurant:ZC.restaurants) {
+            if(restaurant.getDailyMenu()==null || restaurant.getDailyMenu().equals("")){
+                restaurant.setDailyMenu(util.createRandomMenu(randMenuLines));
+            }
+
+        }
+
+        log.info("[INFO] Zomato parsing completed");
     }
 
     private void getGoogleRestaurantsData(double latitude, double longtitude, int radius) {
@@ -97,15 +107,15 @@ public class RestaurantResearcherAgent extends AbstractActor {
                 googleRestaurantsJson += tmpLine;
             }
             in.close();
-            System.out.println("[INFO] Google Places API data acquired.");
+            log.info("[INFO] Google Places API data acquired.");
         } catch (IOException e) {
-            System.out.println("[INFO] Google API not responding.");
+            log.info("[INFO] Google API not responding.");
             e.printStackTrace();
         }
 
         Gson gJson = new Gson();
         GC = gJson.fromJson(googleRestaurantsJson, GoogleCollection.class);
-        System.out.println("[INFO] Google parsing completed");
+        log.info("[INFO] Google parsing completed");
     }
 
 
@@ -154,13 +164,24 @@ public class RestaurantResearcherAgent extends AbstractActor {
 
 
     private void unifyRestaurants(){
+        Util util = new Util();
         CommonRestaurantList = new ArrayList<CommonRestaurant>();
         for(int i=0; i<ZC.restaurants.size();i++){
             CommonRestaurant tmp_zomato = ZC.generateCommon(i);
             CommonRestaurant tmp_google = GC.generateCommon(i);
+
+            //Sprawdzam czy na pewno nie ma pustych menu i dodaje randomy jak jakieś są
+            if(tmp_zomato.dailyMenu==null || tmp_zomato.dailyMenu.equals("")){
+                tmp_zomato.setDailyMenu(util.createRandomMenu(randMenuLines));
+            }
+            if(tmp_google.dailyMenu==null || tmp_google.dailyMenu.equals("")){
+                tmp_google.setDailyMenu(util.createRandomMenu(randMenuLines));
+            }
+
             CommonRestaurantList.add(tmp_zomato);
 
         }
-        System.out.println("[INFO] Zomato CR list creation completed.");
+        log.info("number of restaurants: " + CommonRestaurantList.size());
+        log.info("[INFO] Zomato CR list creation completed.");
     }
 }

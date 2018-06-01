@@ -38,6 +38,7 @@ public class LunchServer {
         // Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
 
 
+
         Search search = new Search(51.490489, -0.167910, 1500);
 
         ActorSystem system = ActorSystem.create("Actorsystem");
@@ -53,7 +54,7 @@ public class LunchServer {
         // test klasyfiaktora menu
         final ActorRef classifyActor = system.actorOf(MenuClassifierAgent.props(), "Calssifier");
 
-        String searchingMenu1 = "Roasted fish and chips and sauce and cucumber.";
+        String searchingMenu1 = "Roasted fish and chips and sauce and cucumber. Coffe, water, whisky, lamb, fresh potato";
         String searchingMenu2 = "Lemon-sesame salsa.";
         List<String> searchingMenus = new ArrayList<String>();
         searchingMenus.add(searchingMenu1);
