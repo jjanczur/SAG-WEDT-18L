@@ -169,6 +169,8 @@ public class RestaurantResearcherAgent extends AbstractActor {
         for(int i=0; i<ZC.restaurants.size();i++){
             CommonRestaurant tmp_zomato = ZC.generateCommon(i);
             CommonRestaurant tmp_google = GC.generateCommon(i);
+
+            //Sprawdzam czy na pewno nie ma pustych menu i dodaje randomy jak jakieś są
             if(tmp_zomato.dailyMenu==null || tmp_zomato.dailyMenu.equals("")){
                 tmp_zomato.setDailyMenu(util.createRandomMenu(randMenuLines));
             }

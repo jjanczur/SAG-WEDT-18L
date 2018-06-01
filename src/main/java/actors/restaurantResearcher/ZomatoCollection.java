@@ -16,7 +16,6 @@ public class ZomatoCollection {
     @SerializedName("restaurants")
     public List<Restaurant> restaurants;
     public Util util = new Util();
-    private int randMenuLines = 150;
 
     public ZomatoCollection(){
         restaurants = new ArrayList<>();
