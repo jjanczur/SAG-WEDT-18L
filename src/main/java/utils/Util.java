@@ -1,15 +1,19 @@
 package utils;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.log4j.Logger;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Util {
+    private static final Logger log = Logger.getLogger(Util.class);
 
     public static String log4jConfPath = "/conf/log4j.properties";
 
@@ -57,6 +61,35 @@ public class Util {
 
         return result;
     }
+
+
+    /**
+     * Method to create random menu. It reads nOfLines from dish_list_rand.txt starting from a random line
+     * @param nOfLines number of lines to be read from the dish_list_rand.txt file
+     * @return concatenated nOfLines from  dish_list_rand.txt
+     */
+    public String createRandomMenu(int nOfLines){
+        String fileName = "dish_list_rand.txt";
+        ClassLoader classLoader = Util.class.getClassLoader();
+        File file = new File(classLoader.getResource(fileName).getFile());        int salt = ThreadLocalRandom.current().nextInt(0, 424000 + 1);
+        StringBuilder menuBuilder = new StringBuilder();
+
+        List fileLinesList = null;
+        try {
+            fileLinesList = FileUtils.readLines(file, "UTF-8");
+        } catch (IOException e) {
+            log.error("Couldn't read the file " + fileName + e.getMessage(), e);
+            e.printStackTrace();
+        }
+
+        for(int i = salt; i<salt+nOfLines; i++) {
+            menuBuilder.append(fileLinesList != null ? fileLinesList.get(i) : "");
+        }
+
+        return menuBuilder.toString();
+    }
+
+
 
 
 }

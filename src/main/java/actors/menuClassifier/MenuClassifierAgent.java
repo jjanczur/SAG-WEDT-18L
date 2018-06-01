@@ -38,6 +38,7 @@ public class MenuClassifierAgent extends AbstractActor {
                 getSender().tell(new Response(classify.getRequester(), restaurants), getSelf());
                 log.info("Restaurant classification completed");
 
+
             } else {
                 log.info("[WARN] The message string does not specify the data source.");
             }

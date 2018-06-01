@@ -21,6 +21,7 @@ public class LunchServerAgent extends AbstractActor {
     LinkedList<ActorRef> menuResearchers;
     private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
 
+
     /**
      * Generator agenta jako aktora Akki {@link Props}.
      * @return
