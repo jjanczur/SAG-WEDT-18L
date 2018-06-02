@@ -1,12 +1,12 @@
 package actors.menuClassifier;
 
+import actors.lunchServer.LunchServerAgent;
 import actors.menuClassifier.classifier.Algorithm;
 import actors.menuClassifier.classifier.RestaurantClassifierWrapper;
 import actors.message.Classify;
 import actors.message.Response;
 import actors.restaurantResearcher.CommonRestaurant;
 import akka.actor.AbstractActor;
-import akka.actor.ActorRef;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -33,11 +33,10 @@ public class MenuClassifierAgent extends AbstractActor {
 
 
                 List<CommonRestaurant> restaurants = classifyRestaurants(classify.getRestaurants(), classify.getSearchingMenus());
-                //getSender().tell(new Response(classify.getRequester(), restaurants), getSelf());
-                ActorRef as = getSender();
-                getSender().tell(new Response(classify.getRequester(), restaurants), getSelf());
-                log.info("Restaurant classification completed");
 
+                getContext().actorOf(LunchServerAgent.props(), "Calssifier")
+                        .tell(new Response(classify.getRequester(), restaurants, classify.getSearchingMenus()), getSelf());
+                log.info("Restaurant classification completed");
 
             } else {
                 log.info("[WARN] The message string does not specify the data source.");

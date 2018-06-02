@@ -28,63 +28,20 @@ public class LunchServer {
      * @param args Parametry CLI.
      */
     public static void main(String[] args) {
-        /*todo: Ogarnąć po co jest ten cfg2 - skąd w ogóle bierze plik server.conf ????(może jakiś domyśłny - nie mylić z /conf/server.conf)*/
 
-        /*
-         * ustawienia serwera
-         */
-        //Props.create(RestaurantResearcherAgent.class);
-        //Config cfg = ConfigFactory.load("conf/server");
-        // Config cfg2 = ConfigFactory.parseFile(new File("server.conf")).withFallback(cfg);
-
-
-
-        Search search = new Search(51.490489, -0.167910, 1500);
 
         ActorSystem system = ActorSystem.create("Actorsystem");
 
-
         final ActorRef server = system.actorOf(LunchServerAgent.props(), "Server");
 
-
-        final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
-        research.tell(search, ActorRef.noSender());
-
-
-        // test klasyfiaktora menu
         final ActorRef classifyActor = system.actorOf(MenuClassifierAgent.props(), "Calssifier");
 
-        String searchingMenu1 = "Roasted fish and chips and sauce and cucumber. Coffe, water, whisky, lamb, fresh potato";
-        String searchingMenu2 = "Lemon-sesame salsa.";
-        List<String> searchingMenus = new ArrayList<String>();
-        searchingMenus.add(searchingMenu1);
-        searchingMenus.add(searchingMenu2);
+        final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
 
+        //server.tell("test",ActorRef.noSender());
 
-        List<CommonRestaurant> restaurantsCollection = new ArrayList<CommonRestaurant>();
+        server.tell("51.490489; -0.165645646321;Roasted fish and chips;coffe; ",ActorRef.noSender());
 
-
-        restaurantsCollection.add(new CommonRestaurant(1, "zomato", "Roasted fish and chips.",
-                "Nad zapracowanym Jackiem", "Plac Szymiego 23/147", "jacek.pl"));
-
-        restaurantsCollection.add(new CommonRestaurant(2, "zomato", "Gravlax in lemon-sesame salsa with " +
-                "fresh coriander, chilli and cucumber.",
-                "U fajnego Pana Szymona", "Plac Jackowsikiego", "szymix.pl"));
-
-        restaurantsCollection.add(new CommonRestaurant("1", "google", searchingMenu1 + " " + searchingMenu2,
-                "Pod potężnym Dominikiem", "Plac Wielkiego Dzika 21/37", "dominix.pl"));
-
-        /*
-        Classify classify = new Classify();
-        classify.setSearchingMenus(searchingMenus);
-        classify.setRestaurants(restaurantsCollection);
-
-
-        classifyActor.tell(classify, ActorRef.noSender());
-        classifyActor.tell(classify, ActorRef.noSender());
-
-        classifyActor.tell(classify, server);
-        */
 
 
     }

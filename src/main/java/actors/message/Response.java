@@ -21,8 +21,11 @@ public class Response implements Serializable {
 
     private List<CommonRestaurant> restaurants;
 
-    public Response(ActorRef requester, List<CommonRestaurant> restaurants) {
+    private List<String> searchingMenus;
+
+    public Response(ActorRef requester, List<CommonRestaurant> restaurants, List<String> searchingMenus) {
         this.requester = requester;
         this.restaurants = restaurants;
+        this.searchingMenus = searchingMenus;
     }
 }

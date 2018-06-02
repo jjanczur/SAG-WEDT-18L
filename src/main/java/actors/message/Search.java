@@ -1,9 +1,9 @@
 package actors.message;
 
-import actors.restaurantResearcher.CommonRestaurant;
-import actors.restaurantResearcher.GoogleCollection;
-import actors.restaurantResearcher.ZomatoCollection;
-import lombok.*;
+import akka.actor.ActorRef;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.List;
@@ -12,14 +12,18 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Search implements Serializable {
+    private static final long serialVersionUID = -6392849246692016285L;
     private int radius; // = 1500;
     private double latitude; // = 51.490489;
     private double longtitude; // = -0.167910;
+    private List<String> searchingMenus;
+    private ActorRef requester;
 
-    public Search(double lng, double lat, int rad){
+    public Search(double lng, double lat, int rad, List<String> searchingMenus) {
         this.radius = rad;
         this.longtitude = lng;
         this.latitude = lat;
+        this.searchingMenus = searchingMenus;
     }
 
 }

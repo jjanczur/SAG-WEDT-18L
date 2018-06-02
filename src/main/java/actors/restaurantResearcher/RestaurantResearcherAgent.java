@@ -1,10 +1,12 @@
 package actors.restaurantResearcher;
 
+import actors.menuClassifier.MenuClassifierAgent;
+import actors.message.Classify;
 import actors.message.Search;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
-import com.google.gson.*;
+import com.google.gson.Gson;
 import com.sun.istack.internal.Nullable;
 import org.apache.log4j.Logger;
 import utils.Util;
@@ -40,29 +42,35 @@ public class RestaurantResearcherAgent extends AbstractActor {
         ReceiveBuilder rbuilder = ReceiveBuilder.create();
 
         rbuilder.match(Search.class, s -> {
-            if((s.getLatitude() != 0.0)&&(s.getLongtitude() != 0.0) ) {
+            if ((s.getLatitude() != 0.0) && (s.getLongtitude() != 0.0)) {
                 getZomatoRestaurantsData(s.getLongtitude(), s.getLatitude(), s.getRadius());
                 getGoogleRestaurantsData(s.getLongtitude(), s.getLatitude(), s.getRadius());
                 unifyRestaurants();
+
+                Classify classify = new Classify();
+                classify.setSearchingMenus(s.getSearchingMenus());
+                classify.setRestaurants(this.CommonRestaurantList);
+
+                getContext().actorOf(MenuClassifierAgent.props(), "Calssifier").tell(classify, getSelf());
             }
         });
 
         return rbuilder.build();
     }
 
-    public static Props props(){
+    public static Props props() {
         return Props.create(RestaurantResearcherAgent.class);
     }
 
     private void getZomatoRestaurantsData(double latitude, double longtitude, int radius) {
         String sURL = "https://developers.zomato.com/api/v2.1/search?"
-                +"&entity_type=city&q=lunch&count="+restaurantCount
-                +"&lat="+latitude+"&lon="+longtitude+"&radius="+radius+"&sort=rating&order=desc";
+                + "&entity_type=city&q=lunch&count=" + restaurantCount
+                + "&lat=" + latitude + "&lon=" + longtitude + "&radius=" + radius + "&sort=rating&order=desc";
         String zomatoRestaurantsJson = new String();
 
         try {
             URL url = new URL(sURL);
-            HttpURLConnection request = (HttpURLConnection)url.openConnection ();
+            HttpURLConnection request = (HttpURLConnection) url.openConnection();
             request.setRequestMethod("GET");
             request.setRequestProperty("user-key", zomatoApiUserKey);
             request.connect();
@@ -79,8 +87,8 @@ public class RestaurantResearcherAgent extends AbstractActor {
         Gson gJson = new Gson();
         ZC = gJson.fromJson(zomatoRestaurantsJson, ZomatoCollection.class);
         Util util = new Util();
-        for (Restaurant restaurant:ZC.restaurants) {
-            if(restaurant.getDailyMenu()==null || restaurant.getDailyMenu().equals("")){
+        for (Restaurant restaurant : ZC.restaurants) {
+            if (restaurant.getDailyMenu() == null || restaurant.getDailyMenu().equals("")) {
                 restaurant.setDailyMenu(util.createRandomMenu(randMenuLines));
             }
 
@@ -90,20 +98,20 @@ public class RestaurantResearcherAgent extends AbstractActor {
     }
 
     private void getGoogleRestaurantsData(double latitude, double longtitude, int radius) {
-        String sURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?"+
-                "location="+latitude+","+longtitude+"&radius="+radius+"&type=restaurant"+
-                "&keyword="+keyword+"&key="+googleApiUserKey;
+        String sURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?" +
+                "location=" + latitude + "," + longtitude + "&radius=" + radius + "&type=restaurant" +
+                "&keyword=" + keyword + "&key=" + googleApiUserKey;
         String googleRestaurantsJson = new String();
 
         try {
             URL url = new URL(sURL);
-            HttpURLConnection request = (HttpURLConnection)url.openConnection ();
+            HttpURLConnection request = (HttpURLConnection) url.openConnection();
             request.setRequestMethod("GET");
             request.connect();
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(request.getInputStream()));
             String tmpLine = "";
-            while((tmpLine = in.readLine()) != null) {
+            while ((tmpLine = in.readLine()) != null) {
                 googleRestaurantsJson += tmpLine;
             }
             in.close();
@@ -123,9 +131,9 @@ public class RestaurantResearcherAgent extends AbstractActor {
 
         //        String sURL = "https://graph.facebook.com/v3.0/search?center=51.490489,-0.167910&distance=1500&limit=50/feed&q=restaurant&type=place?access_token=EAACEdEose0cBAKVAmtvZBfYsT1SMDMrX1Yr0e2JFINOF7IaZCLHxtQkYIRRH4DwsvhnbAp5YWZB4L0ul9zLYMmIu3bUOyX4B3w8uOhObjWFAZCYmxzyvZAfBDLqVEaNonudEz5cmXEsddPIYhYa5qoX3RrSXJAU4mFjXsoZCgWsW0cUdjkHnzPQHBBe4rgupHRwUfxtlbnFwZDZD";
 
-        String sURL = "https://graph.facebook.com/v3.0/search?center="+latitude+","
-                +longtitude+"&distance="+radius+
-                "&limit=50/feed&q=restaurant&type=place"+"&access_token="+facebookApiUserKey;
+        String sURL = "https://graph.facebook.com/v3.0/search?center=" + latitude + ","
+                + longtitude + "&distance=" + radius +
+                "&limit=50/feed&q=restaurant&type=place" + "&access_token=" + facebookApiUserKey;
 
         String facebookRestaurantsJson;
 
@@ -141,13 +149,13 @@ public class RestaurantResearcherAgent extends AbstractActor {
         String facebookRestaurantsJson = null;
         try {
             URL url = new URL(sURL);
-            HttpURLConnection request = (HttpURLConnection)url.openConnection ();
+            HttpURLConnection request = (HttpURLConnection) url.openConnection();
             request.setRequestMethod("GET");
             request.connect();
             BufferedReader in = new BufferedReader(
                     new InputStreamReader(request.getInputStream()));
             String tmpLine;
-            while((tmpLine = in.readLine()) != null) {
+            while ((tmpLine = in.readLine()) != null) {
                 facebookRestaurantsJson += tmpLine;
             }
             in.close();
@@ -156,25 +164,25 @@ public class RestaurantResearcherAgent extends AbstractActor {
             log.error("Facebook API not responding. Message: " + e.getMessage(), e);
             e.printStackTrace();
         }
-        if(facebookRestaurantsJson==null){
+        if (facebookRestaurantsJson == null) {
             log.warn("Facebook response is null");
         }
         return facebookRestaurantsJson;
     }
 
 
-    private void unifyRestaurants(){
+    private void unifyRestaurants() {
         Util util = new Util();
         CommonRestaurantList = new ArrayList<CommonRestaurant>();
-        for(int i=0; i<ZC.restaurants.size();i++){
+        for (int i = 0; i < ZC.restaurants.size(); i++) {
             CommonRestaurant tmp_zomato = ZC.generateCommon(i);
             CommonRestaurant tmp_google = GC.generateCommon(i);
 
             //Sprawdzam czy na pewno nie ma pustych menu i dodaje randomy jak jakieś są
-            if(tmp_zomato.dailyMenu==null || tmp_zomato.dailyMenu.equals("")){
+            if (tmp_zomato.dailyMenu == null || tmp_zomato.dailyMenu.equals("")) {
                 tmp_zomato.setDailyMenu(util.createRandomMenu(randMenuLines));
             }
-            if(tmp_google.dailyMenu==null || tmp_google.dailyMenu.equals("")){
+            if (tmp_google.dailyMenu == null || tmp_google.dailyMenu.equals("")) {
                 tmp_google.setDailyMenu(util.createRandomMenu(randMenuLines));
             }
 
