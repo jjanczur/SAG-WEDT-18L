@@ -26,7 +26,7 @@ public class CommonRestaurant {
         dailyMenu = dm;
         name = rname;
         address = raddress;
-    };
+    }
 
     public CommonRestaurant(String rid, String rorigin,
                             String dm, String rname,
@@ -37,7 +37,17 @@ public class CommonRestaurant {
         dailyMenu = dm;
         name = rname;
         address = raddress;
-    };
+    }
+
+    @Override
+    public String toString() {
+        return "CommonRestaurant{" +
+                "dailyMenu='" + dailyMenu + '\'' +
+                ", name='" + name + '\'' +
+                ", address='" + address + '\'' +
+                ", url='" + url + '\'' +
+                '}';
+    }
 
     @Override
     public int hashCode() {
