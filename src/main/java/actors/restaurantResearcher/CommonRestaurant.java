@@ -42,10 +42,10 @@ public class CommonRestaurant {
     @Override
     public String toString() {
         return "CommonRestaurant{" +
-                "dailyMenu='" + dailyMenu + '\'' +
-                ", name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", url='" + url + '\'' +
+                ",\n name='" + name + '\'' +
+                ",\n address='" + address + '\'' +
+                ",\n url='" + url + '\'' +
+                "\n dailyMenu='" + dailyMenu + '\'' +
                 '}';
     }
 
