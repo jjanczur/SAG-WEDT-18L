@@ -44,7 +44,6 @@ public class CommonRestaurant {
         return "CommonRestaurant{" +
                 ",\n name='" + name + '\'' +
                 ",\n address='" + address + '\'' +
-                ",\n url='" + url + '\'' +
                 "\n dailyMenu='" + dailyMenu + '\'' +
                 '}';
     }
