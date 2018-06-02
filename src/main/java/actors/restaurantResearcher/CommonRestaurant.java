@@ -39,6 +39,17 @@ public class CommonRestaurant {
         address = raddress;
     };
 
+    @Override
+    public int hashCode() {
+        int result = zomato_id;
+        result = 31 * result + (google_id != null ? google_id.hashCode() : 0);
+        result = 31 * result + (origin != null ? origin.hashCode() : 0);
+        result = 31 * result + (dailyMenu != null ? dailyMenu.hashCode() : 0);
+        result = 31 * result + name.hashCode();
+        result = 31 * result + (address != null ? address.hashCode() : 0);
+        result = 31 * result + (url != null ? url.hashCode() : 0);
+        return result;
+    }
 
     @Override
     public boolean equals(Object obj) {
