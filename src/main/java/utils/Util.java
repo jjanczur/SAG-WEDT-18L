@@ -84,6 +84,7 @@ public class Util {
 
         for(int i = salt; i<salt+nOfLines; i++) {
             menuBuilder.append(fileLinesList != null ? fileLinesList.get(i) : "");
+            menuBuilder.append(" ");
         }
 
         return menuBuilder.toString();
