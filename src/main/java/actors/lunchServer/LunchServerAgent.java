@@ -10,6 +10,7 @@ import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -22,7 +23,9 @@ public class LunchServerAgent extends AbstractActor {
 
 
     LinkedList<ActorRef> menuResearchers;
-    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+    //private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+    private static final Logger log = Logger.getLogger(LunchServerAgent.class);
+
 
 
     /**
@@ -123,6 +126,7 @@ public class LunchServerAgent extends AbstractActor {
                 log.info("\tFound restaurants: ");
                 for (CommonRestaurant restaurant : response.getRestaurants()) {
                     log.info("\t\t" + restaurant.getName());
+                    log.debug(restaurant.toString());
                 }
 
             }

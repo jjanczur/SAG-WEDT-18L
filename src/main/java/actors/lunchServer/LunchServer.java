@@ -43,7 +43,6 @@ public class LunchServer {
         server.tell("51.490489; -0.165645646321;Roasted fish and chips;coffe; ",ActorRef.noSender());
 
 
-
     }
 }
 

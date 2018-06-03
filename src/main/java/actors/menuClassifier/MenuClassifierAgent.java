@@ -6,11 +6,13 @@ import actors.menuClassifier.classifier.RestaurantClassifierWrapper;
 import actors.message.Classify;
 import actors.message.Response;
 import actors.restaurantResearcher.CommonRestaurant;
+import actors.restaurantResearcher.RestaurantResearcherAgent;
 import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
+import org.apache.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +20,8 @@ import java.util.Map;
 
 public class MenuClassifierAgent extends AbstractActor {
 
-    private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+    //private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
+    private static final Logger log = Logger.getLogger(MenuClassifierAgent.class);
 
     public MenuClassifierAgent() {
         log.info("[SUCCESS] Started MenuClassifierAgent!");
