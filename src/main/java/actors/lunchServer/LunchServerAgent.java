@@ -60,7 +60,7 @@ public class LunchServerAgent extends AbstractActor {
                 searchingMenus.add(searchingMenu1);
                 searchingMenus.add(searchingMenu2);
                 Search search = new Search(51.490489, -0.167910, 1500, searchingMenus);
-                getContext().actorOf(RestaurantResearcherAgent.props(), "Researcher").tell(search, getSelf());
+                getContext().actorSelection("../Researcher").tell(search, getSelf());
 
             } else {
                 if (searchingData != null && searchingData.length() > 0) {
@@ -100,7 +100,7 @@ public class LunchServerAgent extends AbstractActor {
                         }
 
                         Search search = new Search(lng, lat, 1500, searchingMenus);
-                        getContext().actorOf(RestaurantResearcherAgent.props(), "Researcher").tell(search, getSelf());
+                        getContext().actorSelection("../Researcher").tell(search, getSelf());
 
                     } else {
                         getSelf().tell(new Error("Zbyt mało danych, lub dane wprowadzono nieprawidłowo."), getSelf());

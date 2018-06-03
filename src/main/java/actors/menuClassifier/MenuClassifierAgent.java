@@ -34,8 +34,7 @@ public class MenuClassifierAgent extends AbstractActor {
 
                 List<CommonRestaurant> restaurants = classifyRestaurants(classify.getRestaurants(), classify.getSearchingMenus());
 
-                getContext().actorOf(LunchServerAgent.props(), "Calssifier")
-                        .tell(new Response(classify.getRequester(), restaurants, classify.getSearchingMenus()), getSelf());
+                getContext().actorSelection("../Server").tell(new Response(classify.getRequester(), restaurants, classify.getSearchingMenus()), getSelf());
                 log.info("Restaurant classification completed");
 
             } else {

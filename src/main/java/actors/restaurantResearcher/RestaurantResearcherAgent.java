@@ -51,7 +51,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
                 classify.setSearchingMenus(s.getSearchingMenus());
                 classify.setRestaurants(this.CommonRestaurantList);
 
-                getContext().actorOf(MenuClassifierAgent.props(), "Calssifier").tell(classify, getSelf());
+                getContext().actorSelection("../Calssifier").tell(classify, getSelf());
             }
         });
 

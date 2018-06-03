@@ -38,7 +38,7 @@ public class LunchServer {
 
         final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
 
-        //server.tell("test",ActorRef.noSender());
+        server.tell("test",ActorRef.noSender());
 
         server.tell("51.490489; -0.165645646321;Roasted fish and chips;coffe; ",ActorRef.noSender());
 
