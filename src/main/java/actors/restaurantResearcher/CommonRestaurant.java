@@ -1,6 +1,7 @@
 package actors.restaurantResearcher;
 
 
+import java.io.Serializable;
 import java.net.URL;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,8 @@ import lombok.Setter;
 @Getter
 @Setter
 
-public class CommonRestaurant {
+public class CommonRestaurant implements Serializable {
+    private static final long serialVersionUID = 3909290786117608273L;
     public int zomato_id;
     public String google_id;
     public String origin;

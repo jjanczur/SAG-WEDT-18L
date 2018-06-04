@@ -7,7 +7,6 @@ import akka.actor.AbstractActor;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.gson.Gson;
-import com.sun.istack.internal.Nullable;
 import org.apache.log4j.Logger;
 import utils.Util;
 
@@ -144,7 +143,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
         log.info("Facebook parsing completed");
     }
 
-    @Nullable
+
     private String getJsonResponse(String sURL) {
         String facebookRestaurantsJson = null;
         try {

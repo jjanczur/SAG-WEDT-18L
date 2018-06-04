@@ -2,13 +2,10 @@ package actors.lunchServer;
 
 import actors.message.Response;
 import actors.message.Search;
-import actors.restaurantResearcher.CommonRestaurant;
-import actors.restaurantResearcher.RestaurantResearcherAgent;
 import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
+import akka.actor.ActorSelection;
 import akka.actor.Props;
-import akka.event.Logging;
-import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
 import org.apache.log4j.Logger;
 
@@ -26,6 +23,8 @@ public class LunchServerAgent extends AbstractActor {
     //private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private static final Logger log = Logger.getLogger(LunchServerAgent.class);
 
+    // Getting the other actor
+    private ActorSelection selection = getContext().actorSelection("akka.tcp://ClientServer@127.0.0.1:5555/user/Client");
 
 
     /**
@@ -78,7 +77,7 @@ public class LunchServerAgent extends AbstractActor {
                         try {
                             lng = Double.valueOf(split[0]);
                             lat = Double.valueOf(split[1]);
-                        }catch (NumberFormatException exception){
+                        } catch (NumberFormatException exception) {
                             getSelf().tell(new Error("Niepraaidłowa długość lub szerokość geograficzna"), getSelf());
                             return;
                         }
@@ -92,7 +91,7 @@ public class LunchServerAgent extends AbstractActor {
 
                         }
 
-                        if (lng == null || lat== null) {
+                        if (lng == null || lat == null) {
                             getSelf().tell(new Error("Długość i szerokość geograficzna nie może być pusta"), getSelf());
                             return;
                         }
@@ -115,7 +114,7 @@ public class LunchServerAgent extends AbstractActor {
 
 
         rbuilder.match(Response.class, response -> {
-            if (response.getRestaurants() != null && response.getRestaurants().size() > 0) {
+/*            if (response.getRestaurants() != null && response.getRestaurants().size() > 0) {
                 log.info("Server resived message from: " + getSender());
 
                 log.info("\tSearching menus: ");
@@ -129,13 +128,14 @@ public class LunchServerAgent extends AbstractActor {
                     log.debug(restaurant.toString());
                 }
 
-            }
+            }*/
+
+            selection.tell(response, getSelf());
 
         });
 
         rbuilder.match(Error.class, error -> {
-            log.info("ERROR");
-            log.info("Komunikat bledu: " + error.getMessage());
+            selection.tell(error, getSelf());
         });
 
         // DEFAULT
