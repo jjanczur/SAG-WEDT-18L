@@ -4,6 +4,7 @@ import actors.menuClassifier.MenuClassifierAgent;
 import actors.restaurantResearcher.RestaurantResearcherAgent;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
+import akka.routing.RoundRobinPool;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -22,7 +23,7 @@ public class LunchServer {
      * @param args Parametry CLI.
      */
     public static void main(String[] args) {
-
+        int pool = 5;
 
         Config cfg = ConfigFactory.load("lunchServer");
 
@@ -34,9 +35,11 @@ public class LunchServer {
 
 /*        final ActorRef server = system.actorOf(LunchServerAgent.props(), "Server");*/
 
-        final ActorRef classifyActor = system.actorOf(MenuClassifierAgent.props(), "Calssifier");
+        //final ActorRef classifyActor = system.actorOf(MenuClassifierAgent.props(), "Calssifier");
+        final ActorRef classifyActors = system.actorOf(new RoundRobinPool(pool).props(MenuClassifierAgent.props()), "ClassRouter");
 
-        final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
+        //final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
+        final ActorRef researchActors = system.actorOf(new RoundRobinPool(pool).props(RestaurantResearcherAgent.props()), "ResRouter");
 
     /*    server.tell("test",ActorRef.noSender());
 

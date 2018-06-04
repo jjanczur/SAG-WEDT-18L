@@ -35,7 +35,9 @@ public class RestaurantResearcherAgent extends AbstractActor {
     public GoogleCollection GC;
     public FacebookCollection FC;
     public List<CommonRestaurant> CommonRestaurantList;
-
+    public RestaurantResearcherAgent() {
+        log.info("[SUCCESS] Started RestaurantResearcherAgent!");
+    }
     @Override
     public Receive createReceive() {
         ReceiveBuilder rbuilder = ReceiveBuilder.create();
@@ -50,7 +52,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
                 classify.setSearchingMenus(s.getSearchingMenus());
                 classify.setRestaurants(this.CommonRestaurantList);
 
-                getContext().actorSelection("../Calssifier").tell(classify, getSelf());
+                getContext().actorSelection("//Actorsystem/user/ClassRouter").tell(classify, getSelf());
             }
         });
 

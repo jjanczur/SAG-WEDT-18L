@@ -8,6 +8,7 @@ import akka.actor.ActorSelection;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import org.apache.log4j.Logger;
+import utils.Util;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -56,13 +57,27 @@ public class LunchServerAgent extends AbstractActor {
         rbuilder.match(String.class, searchingData -> {
             if (searchingData.equals("test")) {
 
-                String searchingMenu1 = "Roasted fish and chips and sauce and cucumber. Coffe, water, whisky, lamb, fresh potato";
-                String searchingMenu2 = "Lemon-sesame salsa.";
+                /*String searchingMenu1 = "Roasted fish and chips and sauce and cucumber. Coffe, water.";
+                String searchingMenu2 = "Lemon-sesame salsa. Whisky, lamb, fresh potato";
+                String searchingMenu3 = "Fruit Plate Served With Cottage Cheese";
+                String searchingMenu4 = "Broiled Mutton chop omelet with kidneys. White wine";
+                String searchingMenu5 = "Charcoal Broiled Filet Mignon. Baked Potato or French Fried Potatoes.";*/
                 List<String> searchingMenus = new ArrayList<String>();
-                searchingMenus.add(searchingMenu1);
+                Util tools = new Util();
+                for (int z = 0; z < 25; z++) {
+                    searchingMenus.add(tools.createRandomMenu(2));
+                }
+                /*searchingMenus.add(searchingMenu1);
                 searchingMenus.add(searchingMenu2);
-                Search search = new Search(51.490489, -0.167910, 1500, searchingMenus);
-                getContext().actorSelection("../Researcher").tell(search, getSelf());
+                searchingMenus.add(searchingMenu3);
+                searchingMenus.add(searchingMenu4);
+                searchingMenus.add(searchingMenu5);*/
+
+
+                for (int i = 0; i < searchingMenus.size(); i = i + 5) {
+                    Search search = new Search(51.490489, -0.167910, 1500, searchingMenus.subList(i, i + 4));
+                    getContext().actorSelection("//Actorsystem/user/ResRouter").tell(search, getSelf());
+                }
 
             } else {
                 if (searchingData != null && searchingData.length() > 0) {
