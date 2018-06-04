@@ -24,9 +24,7 @@ public class LunchServerAgent extends AbstractActor {
     LinkedList<ActorRef> menuResearchers;
     //private final LoggingAdapter log = Logging.getLogger(getContext().getSystem(), this);
     private static final Logger log = Logger.getLogger(LunchServerAgent.class);
-
-    // Getting the other actor
-    private ActorSelection selection = getContext().actorSelection("akka.tcp://ClientServer@127.0.0.1:5555/user/Client");
+    private ActorSelection restaurantResearcherSelection = getContext().actorSelection("akka.tcp://ResearcherServer@127.0.0.1:5151/user/Researcher");
 
 
     /**
@@ -67,7 +65,7 @@ public class LunchServerAgent extends AbstractActor {
                     }
 
                     Search search = new Search(getSender(),51.490489, -0.167910, 1500,searchingMenus );
-                    getContext().actorSelection("//Actorsystem/user/ResRouter").tell(search, getSelf());
+                    restaurantResearcherSelection.tell(search, getSelf());
                 }
 
             } else {
@@ -108,7 +106,7 @@ public class LunchServerAgent extends AbstractActor {
                         }
 
                         Search search = new Search(getSender(), lng, lat, 1500, searchingMenus);
-                        getContext().actorSelection("//Actorsystem/user/ResRouter").tell(search, getSelf());
+                        restaurantResearcherSelection.tell(search, getSelf());
 
                     } else {
                         getSelf().tell(new ErrorMessage(getSender(),"Zbyt mało danych, lub dane wprowadzono nieprawidłowo."), getSelf());

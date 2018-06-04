@@ -4,6 +4,7 @@ import actors.menuClassifier.MenuClassifierAgent;
 import actors.message.Classify;
 import actors.message.Search;
 import akka.actor.AbstractActor;
+import akka.actor.ActorSelection;
 import akka.actor.Props;
 import akka.japi.pf.ReceiveBuilder;
 import com.google.gson.Gson;
@@ -20,7 +21,7 @@ import java.util.List;
 
 public class RestaurantResearcherAgent extends AbstractActor {
     private static final Logger log = Logger.getLogger(RestaurantResearcherAgent.class);
-
+    private ActorSelection restaurantClassifierSelection = getContext().actorSelection("akka.tcp://ClassifierServer@127.0.0.1:5152/user/Classifier");
     //variables
     private ArrayList restaurantsList;
     private String zomatoApiUserKey = "4972ea7a10293fc07e997364eef03d3d";
@@ -53,7 +54,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
                 classify.setRestaurants(this.CommonRestaurantList);
                 classify.setRequester(s.getRequester());
 
-                getContext().actorSelection("//Actorsystem/user/ClassRouter").tell(classify, getSelf());
+                restaurantClassifierSelection.tell(classify, getSelf());
             }
         });
 

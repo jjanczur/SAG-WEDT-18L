@@ -31,15 +31,15 @@ public class LunchServer {
 
         ActorSystem system = ActorSystem.create("LunchServer", cfg2);
 
-        system.actorOf(LunchServerAgent.props(), "Server");
+        system.actorOf(new RoundRobinPool(pool).props(LunchServerAgent.props()), "Server");
 
-/*        final ActorRef server = system.actorOf(LunchServerAgent.props(), "Server");*/
 
+        /*        final ActorRef server = system.actorOf(LunchServerAgent.props(), "Server");*/
         //final ActorRef classifyActor = system.actorOf(MenuClassifierAgent.props(), "Calssifier");
-        final ActorRef classifyActors = system.actorOf(new RoundRobinPool(pool).props(MenuClassifierAgent.props()), "ClassRouter");
+        //final ActorRef classifyActors = system.actorOf(new RoundRobinPool(pool).props(MenuClassifierAgent.props()), "ClassRouter");
 
         //final ActorRef research = system.actorOf(RestaurantResearcherAgent.props(), "Researcher");
-        final ActorRef researchActors = system.actorOf(new RoundRobinPool(pool).props(RestaurantResearcherAgent.props()), "ResRouter");
+        //final ActorRef researchActors = system.actorOf(new RoundRobinPool(pool).props(RestaurantResearcherAgent.props()), "ResRouter");
 
     /*    server.tell("test",ActorRef.noSender());
 

@@ -1,16 +1,12 @@
 package actors.client;
 
 import actors.message.Response;
-import actors.message.Search;
 import actors.restaurantResearcher.CommonRestaurant;
 import akka.actor.AbstractActor;
 import akka.actor.ActorSelection;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.pf.ReceiveBuilder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ClientActor extends AbstractActor {
 
@@ -37,8 +33,8 @@ public class ClientActor extends AbstractActor {
                 log.info("Server resived message from: " + getSender());
 
                 log.info("\tSearching menus: ");
-                for(String searchingMenu : response.getSearchingMenus()){
-                    log.info("\t\t"+searchingMenu);
+                for (String searchingMenu : response.getSearchingMenus()) {
+                    log.info("\t\t" + searchingMenu);
                 }
 
                 log.info("\tFound restaurants: ");
