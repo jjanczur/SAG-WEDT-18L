@@ -37,11 +37,11 @@ public class MenuClassifierAgent extends AbstractActor {
 
                 List<CommonRestaurant> restaurants = classifyRestaurants(classify.getRestaurants(), classify.getSearchingMenus());
 
-                getContext().actorSelection("../Server").tell(new Response(classify.getRequester(), restaurants, classify.getSearchingMenus()), getSelf());
+                getContext().actorSelection("//Actorsystem/user/Server").tell(new Response(classify.getRequester(), restaurants, classify.getSearchingMenus()), getSelf());
                 log.info("Restaurant classification completed");
 
             } else {
-                log.info("[WARN] The message string does not specify the data source.");
+                log.info("The message string does not specify the data source.");
             }
 
         });
