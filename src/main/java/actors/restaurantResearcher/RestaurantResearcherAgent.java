@@ -37,7 +37,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
     public FacebookCollection FC;
     public List<CommonRestaurant> CommonRestaurantList;
     public RestaurantResearcherAgent() {
-        log.info("[SUCCESS] Started RestaurantResearcherAgent!");
+        log.info("[SUCCESS] Started RestaurantResearcherAgent! "+getSelf().path());
     }
     @Override
     public Receive createReceive() {
@@ -81,9 +81,9 @@ public class RestaurantResearcherAgent extends AbstractActor {
                     new InputStreamReader(request.getInputStream()));
             zomatoRestaurantsJson = in.readLine();
             in.close();
-            log.info("[INFO] Zomato API data acquired.");
+            log.info("[INFO] Zomato API data acquired. "+getSelf().path());
         } catch (IOException e) {
-            log.info("[INFO] Zomato API not responding.");
+            log.info("[INFO] Zomato API not responding. "+getSelf().path());
             e.printStackTrace();
         }
 
@@ -97,7 +97,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
 
         }
 
-        log.info("[INFO] Zomato parsing completed");
+        log.info("[INFO] Zomato parsing completed. "+getSelf().path());
     }
 
     private void getGoogleRestaurantsData(double latitude, double longtitude, int radius) {
@@ -118,15 +118,15 @@ public class RestaurantResearcherAgent extends AbstractActor {
                 googleRestaurantsJson += tmpLine;
             }
             in.close();
-            log.info("[INFO] Google Places API data acquired.");
+            log.info("[INFO] Google Places API data acquired. "+getSelf().path());
         } catch (IOException e) {
-            log.info("[INFO] Google API not responding.");
+            log.info("[INFO] Google API not responding. "+getSelf().path());
             e.printStackTrace();
         }
 
         Gson gJson = new Gson();
         GC = gJson.fromJson(googleRestaurantsJson, GoogleCollection.class);
-        log.info("[INFO] Google parsing completed");
+        log.info("[INFO] Google parsing completed. "+getSelf().path());
     }
 
 
@@ -144,7 +144,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
 
         Gson gJson = new Gson();
         FC = gJson.fromJson(facebookRestaurantsJson, FacebookCollection.class);
-        log.info("Facebook parsing completed");
+        log.info("Facebook parsing completed. "+getSelf().path());
     }
 
 
@@ -162,7 +162,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
                 facebookRestaurantsJson += tmpLine;
             }
             in.close();
-            log.info(" Facebook Places API data acquired.");
+            log.info(" Facebook Places API data acquired."+getSelf().path());
         } catch (IOException e) {
             log.error("Facebook API not responding. Message: " + e.getMessage(), e);
             e.printStackTrace();
@@ -193,6 +193,6 @@ public class RestaurantResearcherAgent extends AbstractActor {
 
         }
         log.info("number of restaurants: " + CommonRestaurantList.size());
-        log.info("[INFO] Zomato CR list creation completed.");
+        log.info("[INFO] Zomato CR list creation completed. "+getSelf().path());
     }
 }

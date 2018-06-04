@@ -21,7 +21,7 @@ public class MenuClassifierAgent extends AbstractActor {
     private static final Logger log = Logger.getLogger(MenuClassifierAgent.class);
 
     public MenuClassifierAgent() {
-        log.info("[SUCCESS] Started MenuClassifierAgent!");
+        log.info("[SUCCESS] Started MenuClassifierAgent! " +getSelf().path());
     }
 
     // Getting the other actor
@@ -38,7 +38,7 @@ public class MenuClassifierAgent extends AbstractActor {
                 List<CommonRestaurant> restaurants = classifyRestaurants(classify.getRestaurants(), classify.getSearchingMenus());
 
                 lunchServerSelection.tell(new Response(classify.getRequester(), restaurants, classify.getSearchingMenus()), getSelf());
-                log.info("Restaurant classification completed");
+                log.info("Restaurant classification completed. "+getSelf().path());
 
             } else {
                 log.info("The message string does not specify the data source.");

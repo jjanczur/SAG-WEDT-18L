@@ -41,7 +41,7 @@ public class LunchServerAgent extends AbstractActor {
      */
     public LunchServerAgent() {
         menuResearchers = new LinkedList<>();
-        log.info("[SUCCESS] Started lunchServer!");
+        log.info("[SUCCESS] Started lunchServer! " + getSelf().path());
     }
 
     /**
