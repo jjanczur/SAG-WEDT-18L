@@ -1,5 +1,6 @@
 package actors.lunchServer;
 
+import actors.message.ErrorMessage;
 import actors.message.Response;
 import actors.message.Search;
 import akka.actor.AbstractActor;
@@ -57,25 +58,15 @@ public class LunchServerAgent extends AbstractActor {
         rbuilder.match(String.class, searchingData -> {
             if (searchingData.equals("test")) {
 
-                /*String searchingMenu1 = "Roasted fish and chips and sauce and cucumber. Coffe, water.";
-                String searchingMenu2 = "Lemon-sesame salsa. Whisky, lamb, fresh potato";
-                String searchingMenu3 = "Fruit Plate Served With Cottage Cheese";
-                String searchingMenu4 = "Broiled Mutton chop omelet with kidneys. White wine";
-                String searchingMenu5 = "Charcoal Broiled Filet Mignon. Baked Potato or French Fried Potatoes.";*/
-                List<String> searchingMenus = new ArrayList<String>();
-                Util tools = new Util();
-                for (int z = 0; z < 25; z++) {
-                    searchingMenus.add(tools.createRandomMenu(2));
-                }
-                /*searchingMenus.add(searchingMenu1);
-                searchingMenus.add(searchingMenu2);
-                searchingMenus.add(searchingMenu3);
-                searchingMenus.add(searchingMenu4);
-                searchingMenus.add(searchingMenu5);*/
 
+                for(int i = 0; i<20; i++){
+                    List<String> searchingMenus = new ArrayList<String>();
+                    Util tools = new Util();
+                    for (int z = 0; z < 5; z++) {
+                        searchingMenus.add(tools.createRandomMenu(2+i));
+                    }
 
-                for (int i = 0; i < searchingMenus.size(); i = i + 5) {
-                    Search search = new Search(51.490489, -0.167910, 1500, searchingMenus.subList(i, i + 4));
+                    Search search = new Search(getSender(),51.490489, -0.167910, 1500,searchingMenus );
                     getContext().actorSelection("//Actorsystem/user/ResRouter").tell(search, getSelf());
                 }
 
@@ -93,7 +84,7 @@ public class LunchServerAgent extends AbstractActor {
                             lng = Double.valueOf(split[0]);
                             lat = Double.valueOf(split[1]);
                         } catch (NumberFormatException exception) {
-                            getSelf().tell(new Error("Niepraaidłowa długość lub szerokość geograficzna"), getSelf());
+                            getSelf().tell(new ErrorMessage(getSender(),"Niepraaidłowa długość lub szerokość geograficzna"), getSelf());
                             return;
                         }
 
@@ -107,20 +98,20 @@ public class LunchServerAgent extends AbstractActor {
                         }
 
                         if (lng == null || lat == null) {
-                            getSelf().tell(new Error("Długość i szerokość geograficzna nie może być pusta"), getSelf());
+                            getSelf().tell(new ErrorMessage(getSender(),"Długość i szerokość geograficzna nie może być pusta"), getSelf());
                             return;
                         }
 
                         if (searchingMenus.size() == 0) {
-                            getSelf().tell(new Error("Szukane menu nie może być puste"), getSelf());
+                            getSelf().tell(new ErrorMessage(getSender(),"Szukane menu nie może być puste"), getSelf());
                             return;
                         }
 
-                        Search search = new Search(lng, lat, 1500, searchingMenus);
-                        getContext().actorSelection("../Researcher").tell(search, getSelf());
+                        Search search = new Search(getSender(), lng, lat, 1500, searchingMenus);
+                        getContext().actorSelection("//Actorsystem/user/ResRouter").tell(search, getSelf());
 
                     } else {
-                        getSelf().tell(new Error("Zbyt mało danych, lub dane wprowadzono nieprawidłowo."), getSelf());
+                        getSelf().tell(new ErrorMessage(getSender(),"Zbyt mało danych, lub dane wprowadzono nieprawidłowo."), getSelf());
                     }
                 }
 
@@ -129,29 +120,17 @@ public class LunchServerAgent extends AbstractActor {
 
 
         rbuilder.match(Response.class, response -> {
-/*            if (response.getRestaurants() != null && response.getRestaurants().size() > 0) {
-                log.info("Server resived message from: " + getSender());
 
-                log.info("\tSearching menus: ");
-                for(String searchingMenu : response.getSearchingMenus()){
-                    log.info("\t\t"+searchingMenu);
-                }
-
-                log.info("\tFound restaurants: ");
-                for (CommonRestaurant restaurant : response.getRestaurants()) {
-                    log.info("\t\t" + restaurant.getName());
-                    log.debug(restaurant.toString());
-                }
-
-            }*/
-
-            selection.tell(response, getSelf());
+            response.getRequester().tell(response, getSelf());
 
         });
 
-        rbuilder.match(Error.class, error -> {
-            selection.tell(error, getSelf());
+        rbuilder.match(ErrorMessage.class, error -> {
+            error.getRequester().tell(error, getSelf());
         });
+
+
+
 
         // DEFAULT
         rbuilder.matchAny(o -> log.info(getSelf().path().toString() + " - unknown message type " + o.getClass().getCanonicalName()));

@@ -19,7 +19,8 @@ public class Search implements Serializable {
     private List<String> searchingMenus;
     private ActorRef requester;
 
-    public Search(double lng, double lat, int rad, List<String> searchingMenus) {
+    public Search(ActorRef requester, double lng, double lat, int rad, List<String> searchingMenus) {
+        this.requester = requester;
         this.radius = rad;
         this.longtitude = lng;
         this.latitude = lat;

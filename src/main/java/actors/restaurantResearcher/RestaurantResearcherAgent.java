@@ -51,6 +51,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
                 Classify classify = new Classify();
                 classify.setSearchingMenus(s.getSearchingMenus());
                 classify.setRestaurants(this.CommonRestaurantList);
+                classify.setRequester(s.getRequester());
 
                 getContext().actorSelection("//Actorsystem/user/ClassRouter").tell(classify, getSelf());
             }

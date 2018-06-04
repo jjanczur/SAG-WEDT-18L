@@ -25,7 +25,7 @@ public class ClientActor extends AbstractActor {
 
         rbuilder.match(String.class, searchingData -> {
             if (searchingData.equals("test")) {
-                selection.tell("51.490489; -0.17645646321;Roasted fish and chips; ", getSelf());
+                selection.tell("test", getSelf());
             } else {
                 selection.tell(searchingData, getSelf());
             }
