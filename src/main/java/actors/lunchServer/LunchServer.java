@@ -1,10 +1,7 @@
 package actors.lunchServer;
 
-import actors.menuClassifier.MenuClassifierAgent;
-import actors.restaurantResearcher.RestaurantResearcherAgent;
-import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
-import akka.routing.RoundRobinPool;
+import akka.routing.FromConfig;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
@@ -23,7 +20,7 @@ public class LunchServer {
      * @param args Parametry CLI.
      */
     public static void main(String[] args) {
-        int pool = 5;
+        int pool = 1;
 
         Config cfg = ConfigFactory.load("lunchServer");
 
@@ -31,7 +28,8 @@ public class LunchServer {
 
         ActorSystem system = ActorSystem.create("LunchServer", cfg2);
 
-        system.actorOf(new RoundRobinPool(pool).props(LunchServerAgent.props()), "Server");
+        //system.actorOf(new RoundRobinPool(10).props(LunchServerAgent.props()), "Server");
+        system.actorOf(FromConfig.getInstance().props(LunchServerAgent.props()), "Server");
 
 
         /*        final ActorRef server = system.actorOf(LunchServerAgent.props(), "Server");*/

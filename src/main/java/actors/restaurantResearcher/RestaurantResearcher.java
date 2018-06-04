@@ -3,6 +3,7 @@ package actors.restaurantResearcher;
 
 import actors.menuClassifier.MenuClassifierAgent;
 import akka.actor.ActorSystem;
+import akka.routing.FromConfig;
 import akka.routing.RoundRobinPool;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -22,7 +23,7 @@ public class RestaurantResearcher {
 
     public static void main(String[] args) {
 
-        int pool = 5;
+        int pool = 1;
 
         Config cfg = ConfigFactory.load("researcher");
 
@@ -30,7 +31,8 @@ public class RestaurantResearcher {
 
         ActorSystem system = ActorSystem.create("ResearcherServer", cfg2);
 
-        system.actorOf(new RoundRobinPool(pool).props(RestaurantResearcherAgent.props()), "Researcher");
+        //system.actorOf(new RoundRobinPool(pool).props(RestaurantResearcherAgent.props()), "Researcher");
+        system.actorOf(FromConfig.getInstance().props(RestaurantResearcherAgent.props()), "Researcher");
 
     }
 
