@@ -24,7 +24,7 @@ public class RestaurantResearcherAgent extends AbstractActor {
     private ActorSelection restaurantClassifierSelection = getContext().actorSelection("akka.tcp://ClassifierServer@127.0.0.1:5152/user/Classifier");
     //variables
     private ArrayList restaurantsList;
-    private String zomatoApiUserKey = "4972ea7a10293fc07e997364eef03d3d";
+    private String zomatoApiUserKey = "159b5e120894ad6cae76c3a568b19732";
     private String googleApiUserKey = "AIzaSyC46JVz8sjO7cLKFytsG9LjuY11BrQu6_w";
     //https://developers.facebook.com/tools/explorer/?method=GET&path=me%3Ffields%3Did%2Cname&version=v3.0
     private String facebookApiUserKey = "EAACEdEose0cBADHZCXfsjoEIR4WdKZBaPYGQXvSuIX0TJesjWmxLPxzHqnvsxZBZBIVaygt2KGw7xnzODHZCP3cDaO0ixfjGmhZAZB2kxznrCCZBnphdJkBpErcJZCKSZBqsHIHFZCDJH3oYtZAtG1se4243EVrjhBDdLPWnZA6yjapPifgEFSSpLRH2D4BNa3Rd5XnPC3ZBNxRq0UPAZDZD";
